@@ -16,21 +16,26 @@ function createReaction<T extends StoreValue>(
 ): ReactionObject<T> {
   const thisReaction: Reaction = { cb };
 
-  trackers._reactions.set(thisReaction, new Set());
+  function cleanup() {
+    const usedValues = trackers._reactions.get(thisReaction);
+    if (usedValues) {
+      usedValues.forEach(val =>
+        trackers._depList.get(val)!.forEach(x => x.delete(thisReaction))
+      );
+    }
+  }
+
   return {
     _track: fn => {
+      // Reset dependencies from previous render
+      cleanup();
+      trackers._reactions.set(thisReaction, new Set());
       trackers._currentWatcher = thisReaction;
       const result = fn();
       trackers._currentWatcher = null;
       return result;
     },
-    _dispose: () => {
-      const usedValues = trackers._reactions.get(thisReaction);
-      usedValues!.forEach(val =>
-        trackers._depList.get(val)!.forEach(x => x.delete(thisReaction))
-      );
-      trackers._reactions.delete(thisReaction);
-    }
+    _dispose: cleanup
   };
 }
 
