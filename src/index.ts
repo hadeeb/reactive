@@ -1,10 +1,11 @@
 import {
   useContext,
-  FunctionComponent,
   memo as memoize,
   useReducer,
   useRef,
-  useEffect
+  useEffect,
+  RefForwardingComponent,
+  forwardRef
 } from "react";
 import { ReactionObject, createReaction } from "./reaction";
 import { BasicObject, createStore, Store } from "./createStore";
@@ -12,21 +13,25 @@ import { context, StoreProvider } from "./context";
 
 type VoidFn = () => void;
 
-function observe<Props>(component: FunctionComponent<Props>) {
+function observe<Props, T = unknown>(
+  component: RefForwardingComponent<T, Props>
+) {
   const reducer = () => ({});
-  const memo = memoize(function(props: Props) {
-    const forceUpdate = useReducer(reducer, true)[1] as VoidFn;
-    const store = useCtx();
+  const memo = memoize(
+    forwardRef<T, Props>(function(props, ref) {
+      const forceUpdate = useReducer(reducer, true)[1] as VoidFn;
+      const store = useCtx();
 
-    const reaction = useRef<ReactionObject<any>>();
-    if (!reaction.current) {
-      reaction.current = createReaction<any>(store._trackers, forceUpdate);
-    }
+      const reaction = useRef<ReactionObject<any>>();
+      if (!reaction.current) {
+        reaction.current = createReaction<any>(store._trackers, forceUpdate);
+      }
 
-    useEffect(() => reaction.current!._dispose, []);
+      useEffect(() => reaction.current!._dispose, []);
 
-    return reaction.current._track(() => component(props));
-  });
+      return reaction.current._track(() => component(props, ref));
+    })
+  );
 
   memo.displayName = `Observed(${component.displayName ||
     component.name ||
