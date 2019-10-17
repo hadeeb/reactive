@@ -14,19 +14,12 @@ Reactive global state for react apps
 - ~1 KB (min+gzip)
 - Maps,Sets,etc are not reactive
 - Wrapper works only on functional components
-- **NOT** flux(see [Mobx](https://github.com/mobxjs/mobx))
 
 ---
 
 ### TODO
 
 - ReduxDevtool Integration
-
-  - Updates can/will be nondeterministic.
-  - Changes done in a single cycle grouped together.
-  - Is there a point?
-
-- Scaling
 
 ---
 
@@ -35,23 +28,33 @@ Reactive global state for react apps
 ```tsx
 import { StoreProvider, createStore, observe, useStore } from "...";
 
-const store = createStore({ counter: 0 });
+const store = createStore(
+  {
+    INCREMENT(state) {
+      store.counter++;
+    },
+    DECREMENT(state) {
+      store.counter--;
+    }
+  },
+  { counter: 0 }
+);
 
 function Child() {
-  const store = useStore();
+  const { store, emit } = useStore();
   return (
     <div>
       <span>{store.counter}</span>
       <button
         onClick={() => {
-          store.counter++;
+          emit("INCREMENT");
         }}
       >
         +
       </button>
       <button
         onClick={() => {
-          store.counter--;
+          emit("DECREMENT");
         }}
       >
         -
