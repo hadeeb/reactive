@@ -11,15 +11,9 @@ Reactive global state for react apps
 
 ---
 
-- ~1 KB (min+gzip)
+- ~1.2 KB (min+gzip)
 - Maps,Sets,etc are not reactive
 - Wrapper works only on functional components
-
----
-
-### TODO
-
-- ReduxDevtool Integration
 
 ---
 
@@ -31,10 +25,10 @@ import { StoreProvider, createStore, observe, useStore } from "...";
 const store = createStore(
   {
     INCREMENT(state) {
-      store.counter++;
+      state.counter++;
     },
     DECREMENT(state) {
-      store.counter--;
+      state.counter--;
     }
   },
   { counter: 0 }
@@ -72,3 +66,61 @@ function App() {
   );
 }
 ```
+
+## Enhancers
+
+Add features to store
+
+### Redux DevTool Integration
+
+```tsx
+import {addReduxDevTool} from ".../enhance"
+const store = createStore(...,...)
+
+addReduxDevTool(store,options)
+```
+
+### Async Events
+
+Perform Asynchronous actions on events
+
+```tsx
+import {addAsyncEvents} from ".../enhance"
+const store = createStore(...,...)
+
+addAsyncEvents(store, {
+  ASYNC_FETCH({state,emit}){
+    fetchDataFromApi(state.query)
+      .then(data=>{
+        emit("API_RESPONSE",data);
+      })
+  }
+})
+
+function Component() {
+  const { store, emit } = useStore();
+  return (
+    <div>
+      <span>{store.data}</span>
+      <button
+        onClick={() => {
+          emit("ASYNC_FETCH");
+        }}
+      >
+        Fetch Data
+      </button>
+    </div>
+  );
+}
+```
+
+## TODO
+
+- Documentation
+  - codesplit with `addEvents`
+  - creating an enhancer with `hook` option
+  - batch updates
+  - type helpers
+- Tests
+- Example Project
+- Decouple react integration(Maybe)
