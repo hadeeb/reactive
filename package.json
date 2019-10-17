@@ -7,19 +7,17 @@
   "module": "dist/index.module.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "microbundle build --raw --globals react=React -f es,cjs"
+    "build": "microbundle build --raw -f es,cjs"
   },
   "sideEffects": false,
   "peerDependencies": {
-    "react": ">=16.8",
-    "react-dom": ">=16.8"
+    "react": ">=16.8"
   },
   "devDependencies": {
     "@types/react": "^16.9.5",
     "@types/react-dom": "^16.9.1",
     "microbundle": "^0.11.0",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2"
+    "react": "^16.10.2"
   },
   "dependencies": {
     "type-fest": "^0.8.1"
