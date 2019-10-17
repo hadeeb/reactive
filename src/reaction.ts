@@ -1,16 +1,7 @@
-import { StoreValue } from "./createStore";
-import { Trackers } from "./trackers";
+import { Trackers, Reaction, ReactionObject } from "./types";
+import { JsonObject } from "type-fest";
 
-export type Reaction = {
-  cb: () => void;
-};
-
-export type ReactionObject<T> = {
-  _track: (fn: () => T) => T;
-  _dispose: () => void;
-};
-
-function createReaction<T extends StoreValue>(
+function createReaction<T extends JsonObject>(
   trackers: Trackers,
   cb: () => void
 ): ReactionObject<T> {

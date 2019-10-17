@@ -5,8 +5,9 @@
   "src": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "microbundle build --raw --globals react=React,react-dom=ReactDOM"
+    "build": "microbundle build --raw --globals react=React -f es,cjs"
   },
   "sideEffects": false,
   "peerDependencies": {

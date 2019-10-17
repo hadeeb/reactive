@@ -1,13 +1,14 @@
 import { FunctionComponent, createContext, createElement } from "react";
-import { BasicObject, Store } from "./createStore";
+import { Store } from "./types";
 
-const context = createContext<Store<BasicObject>>((false as unknown) as Store<
-  BasicObject
+const context = createContext<Store<any, any>>((false as unknown) as Store<
+  any,
+  any
 >);
 
 const Provider = context.Provider;
 
-const StoreProvider: FunctionComponent<{ store: Store<BasicObject> }> = ({
+const StoreProvider: FunctionComponent<{ store: Store<any, any> }> = ({
   store,
   children
 }) => createElement(Provider, { value: store, children });

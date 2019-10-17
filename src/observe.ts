@@ -1,15 +1,14 @@
-import { BasicObject, BasicArray } from "./createStore";
-import { isObject, isArray, isSymbol, hasOwn } from "./util";
-import { Trackers } from "./trackers";
+import { isArray, isSymbol } from "./util";
 import { enqueue } from "./enqueue";
-import { Reaction } from "./reaction";
+import { JsonObject, JsonArray } from "type-fest";
+import { Trackers, Reaction } from "./types";
 
 const $IterateTracker = Symbol();
 const TYPE_ADD = 1;
 const TYPE_EDIT = 2;
 const TYPE_REMOVE = 3;
 
-function observeObject<T extends BasicObject | BasicArray>(
+function observeObject<T extends JsonObject | JsonArray>(
   obj: T,
   trackers: Trackers
 ): T {
@@ -26,15 +25,25 @@ function observeObject<T extends BasicObject | BasicArray>(
         return res;
       }
       addTrackers(trackers, target, prop);
-      return isObject(res) ? observeObject(res as T, trackers) : res;
+      return res !== null && typeof res === "object"
+        ? observeObject(res as T, trackers)
+        : res;
     },
     //Setter
     set(target, prop, value, reciever) {
+      if (!trackers._isEditing) {
+        if (process.env.NODE_ENV !== "production") {
+          throw new Error(
+            "Store shouldn't be modified outside event listeners"
+          );
+        }
+        return false;
+      }
       const result = Reflect.set(target, prop, value, reciever);
-      if (hasOwn(target, prop)) {
-        triggerTrackers(trackers, target, TYPE_ADD, prop);
-      } else if (isArray(target)) {
+      if (target.hasOwnProperty(prop)) {
         triggerTrackers(trackers, target, TYPE_EDIT, prop);
+      } else if (isArray(target)) {
+        triggerTrackers(trackers, target, TYPE_ADD, prop);
       }
       return result;
     },
@@ -60,7 +69,7 @@ function observeObject<T extends BasicObject | BasicArray>(
 
 function addTrackers(
   trackers: Trackers,
-  target: BasicObject | BasicArray,
+  target: JsonObject | JsonArray,
   key: PropertyKey
 ) {
   if (trackers._currentWatcher) {
@@ -82,7 +91,7 @@ function addTrackers(
 
 function triggerTrackers(
   trackers: Trackers,
-  target: BasicObject | BasicArray,
+  target: JsonObject | JsonArray,
   type: number,
   key: PropertyKey
 ) {

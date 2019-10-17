@@ -1,8 +1,11 @@
-import { unstable_batchedUpdates as batch } from "react-dom";
-import { Reaction } from "./reaction";
+import { Options, Reaction } from "./types";
 
 let queue: Set<Reaction> = new Set();
 let isUpdating = false;
+
+const options: Options = {
+  batch: x => x()
+};
 
 function enqueue(x: Reaction) {
   queue.add(x);
@@ -11,7 +14,7 @@ function enqueue(x: Reaction) {
   Promise.resolve().then(() => {
     const currentQueue = new Set(queue);
     queue = new Set();
-    batch(() => {
+    options.batch(() => {
       currentQueue.forEach(x => {
         x.cb();
       });
@@ -20,4 +23,4 @@ function enqueue(x: Reaction) {
   });
 }
 
-export { enqueue };
+export { enqueue, options };

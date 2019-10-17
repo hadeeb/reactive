@@ -7,11 +7,12 @@ import {
   RefForwardingComponent,
   forwardRef
 } from "react";
-import { ReactionObject, createReaction } from "./reaction";
-import { BasicObject, createStore, Store } from "./createStore";
+import { createReaction } from "./reaction";
+import { createStore } from "./createStore";
 import { context, StoreProvider } from "./context";
-
-type VoidFn = () => void;
+import { ReadonlyDeep, JsonObject } from "type-fest";
+import { Store, VoidFunction, ReactionObject } from "./types";
+import { options } from "./enqueue";
 
 function observe<Props, T = unknown>(
   component: RefForwardingComponent<T, Props>
@@ -19,7 +20,7 @@ function observe<Props, T = unknown>(
   const reducer = () => ({});
   const memo = memoize(
     forwardRef<T, Props>(function(props, ref) {
-      const forceUpdate = useReducer(reducer, true)[1] as VoidFn;
+      const forceUpdate = useReducer(reducer, true)[1] as VoidFunction;
       const store = useCtx();
 
       const reaction = useRef<ReactionObject<any>>();
@@ -39,16 +40,32 @@ function observe<Props, T = unknown>(
   return memo;
 }
 
-function useStore<T extends BasicObject>(): T {
-  return useCtx<T>()._state;
+function useStore<
+  StoreType extends JsonObject,
+  EVENTS extends PropertyKey = PropertyKey
+>(): ReadonlyDeep<{
+  store: StoreType;
+  emit: (event: EVENTS, ...args: any[]) => void;
+}> {
+  const store = useCtx<StoreType, EVENTS>();
+
+  return {
+    store: store.state as ReadonlyDeep<StoreType>,
+    emit: store.emit
+  };
 }
 
-function useCtx<T extends BasicObject>() {
-  const store = useContext(context) as Store<T>;
+function useCtx<
+  T extends JsonObject,
+  EVENTS extends PropertyKey = PropertyKey
+>() {
+  const store = useContext(context) as Store<T, EVENTS>;
   if (!store) {
     throw new Error("No Store Provider found");
   }
   return store;
 }
 
-export { StoreProvider, createStore, useStore, observe };
+export * from "./types";
+
+export { StoreProvider, createStore, useStore, observe, options };
