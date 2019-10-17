@@ -1,0 +1,19 @@
+{
+  "name": "enhance",
+  "version": "1.0.0",
+  "private": true,
+  "src": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.module.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "microbundle build --raw -f es,cjs"
+  },
+  "sideEffects": false,
+  "peerDependencies": {
+    "reactive": "1.0.0"
+  },
+  "devDependencies": {
+    "microbundle": "^0.11.0"
+  }
+}
