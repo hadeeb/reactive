@@ -7,13 +7,15 @@
   "module": "dist/index.module.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "microbundle build --raw -f es,cjs"
+    "build": "microbundle build --raw -f es,cjs",
+    "size": "size-limit"
   },
   "sideEffects": false,
   "peerDependencies": {
     "react": ">=16.8"
   },
   "devDependencies": {
+    "@size-limit/preset-small-lib": "^2.1.6",
     "@types/react": "^16.9.5",
     "@types/react-dom": "^16.9.1",
     "microbundle": "^0.11.0",
@@ -24,5 +26,15 @@
   },
   "mangle": {
     "regex": "^_"
-  }
+  },
+  "size-limit": [
+    {
+      "name": "core",
+      "path": "dist/index.js",
+      "limit": "1040 B",
+      "ignore": [
+        "react"
+      ]
+    }
+  ]
 }
