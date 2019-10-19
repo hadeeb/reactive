@@ -20,7 +20,11 @@ function observe<Props, T = unknown>(
   const memo = memoize(
     forwardRef<T, Props>(function(props, ref) {
       const forceUpdate = useReducer(reducer, true)[1] as VoidFunction;
-      const store = useCtx();
+
+      const store = useContext(context);
+      if (!store && process.env.NODE_ENV !== "production") {
+        throw new Error("No Store Provider found");
+      }
 
       const reaction = useRef<ReactionObject<any>>();
       if (!reaction.current) {
@@ -46,23 +50,16 @@ function useStore<
   store: StoreType;
   emit: (event: EVENTS, ...args: any[]) => void;
 }> {
-  const store = useCtx<StoreType, EVENTS>();
+  const store: Store<StoreType, EVENTS> = useContext(context);
+
+  if (!store && process.env.NODE_ENV !== "production") {
+    throw new Error("No Store Provider found");
+  }
 
   return {
     store: store.state as ReadonlyDeep<StoreType>,
     emit: store.emit
   };
-}
-
-function useCtx<
-  T extends JsonObject,
-  EVENTS extends PropertyKey = PropertyKey
->() {
-  const store = useContext(context) as Store<T, EVENTS>;
-  if (!store) {
-    throw new Error("No Store Provider found");
-  }
-  return store;
 }
 
 export { observe, useStore };
