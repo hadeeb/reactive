@@ -20,7 +20,8 @@ Reactive global state for react apps
 ### Example
 
 ```tsx
-import { StoreProvider, createStore, observe, useStore } from "...";
+import { unstable_batchedUpdates } from "react-dom"; //Or react-native
+import { StoreProvider, createStore, observe, useStore, options } from "...";
 
 const store = createStore(
   {
@@ -65,6 +66,8 @@ function App() {
     </StoreProvider>
   );
 }
+// This is important
+options.batch = unstable_batchedUpdates;
 ```
 
 ## Enhancers
