@@ -21,9 +21,10 @@ function createReaction<T extends JsonObject>(
       // Reset dependencies from previous render
       cleanup();
       trackers._reactions.set(thisReaction, new Set());
+      const prevTracker = trackers._currentWatcher;
       trackers._currentWatcher = thisReaction;
       const result = fn();
-      trackers._currentWatcher = null;
+      trackers._currentWatcher = prevTracker;
       return result;
     },
     _dispose: cleanup
