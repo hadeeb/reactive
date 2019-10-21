@@ -1,9 +1,9 @@
 import { Opaque, JsonObject, JsonArray } from "type-fest";
 
-export type MiddleWare = (
-  store: Store<any, any>,
-  event: any,
-  ...args: any
+export type MiddleWare<EVENTS extends PropertyKey> = (
+  store: Store<any, EVENTS>,
+  event: EVENTS,
+  args?: any
 ) => void;
 
 export type Reaction = {
@@ -15,26 +15,32 @@ export type ReactionObject<T> = {
   _dispose: () => void;
 };
 
+export type ObservableObject = JsonObject | JsonArray;
+
+type PropertyKeyToReactionMap = Map<PropertyKey, Set<Reaction>>;
+type ObjectSet = Set<ObservableObject>;
+
 export type Trackers = {
   _isEditing: boolean;
   _currentWatcher: Reaction | null;
-  _depList: WeakMap<JsonObject | JsonArray, Map<PropertyKey, Set<Reaction>>>;
-  _reactions: WeakMap<Reaction, Set<JsonObject | JsonArray>>;
-  _toProxy: WeakMap<JsonObject | JsonArray, JsonObject | JsonArray>;
+  _depList: WeakMap<ObservableObject, PropertyKeyToReactionMap>;
+  _reactions: WeakMap<Reaction, ObjectSet>;
+  _toProxy: WeakMap<ObservableObject, ObservableObject>;
 };
 
-export type Store<T, EVENTS = PropertyKey> = Opaque<{
+export type Store<T, EVENTS extends PropertyKey = PropertyKey> = Opaque<{
   state: T;
-  _trackers: Trackers;
-  emit: (event: EVENTS, ...args: any[]) => void;
+  emit: Emit<EVENTS>;
   addEvents: <Q extends PropertyKey>(events: Events<T, Q>) => void;
-  hook: MiddleWare;
+  hook: MiddleWare<any>;
 }>;
 
-export type Event<T, Args extends any[] = any[]> = (
-  store: T,
-  ...args: Args
+export type Emit<EVENTS extends PropertyKey = PropertyKey> = (
+  event: EVENTS,
+  args?: any
 ) => void;
+
+export type Event<T, Args = any> = (store: T, args?: Args) => void;
 
 export type Events<T, KEYS extends PropertyKey> = Record<KEYS, Event<T>>;
 

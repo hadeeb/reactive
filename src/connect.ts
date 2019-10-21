@@ -10,7 +10,7 @@ import {
 import { context } from "./context";
 
 import { createReaction } from "./reaction";
-import { ReactionObject, Store, VoidFunction } from "./types";
+import { ReactionObject, Store, VoidFunction, Emit } from "./types";
 import { JsonObject, ReadonlyDeep } from "type-fest";
 
 function observe<Props, T = unknown>(
@@ -28,7 +28,7 @@ function observe<Props, T = unknown>(
 
       const reaction = useRef<ReactionObject<any>>();
       if (!reaction.current) {
-        reaction.current = createReaction<any>(store._trackers, forceUpdate);
+        reaction.current = createReaction<any>(forceUpdate);
       }
 
       useEffect(() => reaction.current!._dispose, []);
@@ -48,7 +48,7 @@ function useStore<
   EVENTS extends PropertyKey = PropertyKey
 >(): ReadonlyDeep<{
   store: StoreType;
-  emit: (event: EVENTS, ...args: any[]) => void;
+  emit: Emit<EVENTS>;
 }> {
   const store: Store<StoreType, EVENTS> = useContext(context);
 

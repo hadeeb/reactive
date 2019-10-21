@@ -1,8 +1,8 @@
-import { Trackers, Reaction, ReactionObject } from "./types";
+import { Reaction, ReactionObject } from "./types";
 import { JsonObject } from "type-fest";
+import { trackers } from "./trackers";
 
 function createReaction<T extends JsonObject>(
-  trackers: Trackers,
   cb: () => void
 ): ReactionObject<T> {
   const thisReaction: Reaction = { cb };

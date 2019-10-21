@@ -1,17 +1,14 @@
 import { isArray, isSymbol } from "./util";
 import { enqueue } from "./enqueue";
-import { JsonObject, JsonArray } from "type-fest";
-import { Trackers, Reaction } from "./types";
+import { Reaction, ObservableObject } from "./types";
+import { trackers } from "./trackers";
 
 const $IterateTracker = Symbol();
 const TYPE_ADD = 1;
 const TYPE_EDIT = 2;
 const TYPE_REMOVE = 3;
 
-function observeObject<T extends JsonObject | JsonArray>(
-  obj: T,
-  trackers: Trackers
-): T {
+function observeObject<T extends ObservableObject>(obj: T): T {
   // Already tracked
   if (trackers._toProxy.has(obj)) {
     return trackers._toProxy.get(obj) as T;
@@ -24,9 +21,9 @@ function observeObject<T extends JsonObject | JsonArray>(
       if (isSymbol(prop) && builtInSymbols.has(prop)) {
         return res;
       }
-      addTrackers(trackers, target, prop);
+      addTrackers(target, prop);
       return res !== null && typeof res === "object"
-        ? observeObject(res as T, trackers)
+        ? observeObject(res as T)
         : res;
     },
     //Setter
@@ -41,24 +38,24 @@ function observeObject<T extends JsonObject | JsonArray>(
       }
       const result = Reflect.set(target, prop, value, reciever);
       if (target.hasOwnProperty(prop)) {
-        triggerTrackers(trackers, target, TYPE_EDIT, prop);
+        triggerTrackers(target, TYPE_EDIT, prop);
       } else if (isArray(target)) {
-        triggerTrackers(trackers, target, TYPE_ADD, prop);
+        triggerTrackers(target, TYPE_ADD, prop);
       }
       return result;
     },
     //Delete property
     deleteProperty(target, prop) {
       const result = Reflect.deleteProperty(target, prop);
-      triggerTrackers(trackers, target, TYPE_REMOVE, prop);
+      triggerTrackers(target, TYPE_REMOVE, prop);
       return result;
     },
     ownKeys(target) {
-      addTrackers(trackers, target, $IterateTracker);
+      addTrackers(target, $IterateTracker);
       return Reflect.ownKeys(target);
     },
     has(target, prop) {
-      addTrackers(trackers, target, prop);
+      addTrackers(target, prop);
       return Reflect.has(target, prop);
     }
   });
@@ -67,11 +64,7 @@ function observeObject<T extends JsonObject | JsonArray>(
   return proxy;
 }
 
-function addTrackers(
-  trackers: Trackers,
-  target: JsonObject | JsonArray,
-  key: PropertyKey
-) {
+function addTrackers(target: ObservableObject, key: PropertyKey) {
   if (trackers._currentWatcher) {
     let currentTracker = trackers._depList.get(target);
     if (!currentTracker) {
@@ -90,8 +83,7 @@ function addTrackers(
 }
 
 function triggerTrackers(
-  trackers: Trackers,
-  target: JsonObject | JsonArray,
+  target: ObservableObject,
   type: number,
   key: PropertyKey
 ) {

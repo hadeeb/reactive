@@ -1,16 +1,16 @@
-import { Store, GetStoreType, GetEventTypes } from "reactive";
+import { Store, GetStoreType, GetEventTypes, Emit } from "reactive";
 import { ReadonlyDeep } from "type-fest";
 
-type AsyncArg<T extends Store<any, any>, KEYS> = {
+type AsyncArg<T extends Store<any, any>, KEYS extends PropertyKey> = {
   state: ReadonlyDeep<GetStoreType<T>>;
-  emit: (event: GetEventTypes<T> | KEYS, ...args: any[]) => void;
+  emit: Emit<GetEventTypes<T> | KEYS>;
 };
 
 export type AsyncEvent<
   T extends Store<any, any>,
-  KEYS,
-  Args extends any[] = any[]
-> = (t: AsyncArg<T, KEYS>, ...args: Args) => void | Promise<void>;
+  KEYS extends PropertyKey,
+  Args = any
+> = (t: AsyncArg<T, KEYS>, args?: Args) => void | Promise<void>;
 
 export type AsyncEvents<
   T extends Store<any, any>,
