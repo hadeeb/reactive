@@ -1,4 +1,4 @@
-import { isArray, isSymbol } from "./util";
+import { isSymbol } from "./util";
 import { enqueue } from "./enqueue";
 import { Reaction, ObservableObject } from "./types";
 import { trackers } from "./trackers";
@@ -39,7 +39,7 @@ function observeObject<T extends ObservableObject>(obj: T): T {
       const result = Reflect.set(target, prop, value, reciever);
       if (target.hasOwnProperty(prop)) {
         triggerTrackers(target, TYPE_EDIT, prop);
-      } else if (isArray(target)) {
+      } else {
         triggerTrackers(target, TYPE_ADD, prop);
       }
       return result;
@@ -94,7 +94,7 @@ function triggerTrackers(
   t && t.forEach(x => reactions.add(x));
 
   if (type !== TYPE_EDIT) {
-    const iterateKey = isArray(target) ? "length" : $IterateTracker;
+    const iterateKey = Array.isArray(target) ? "length" : $IterateTracker;
     const t = deps.get(iterateKey);
     t && t.forEach(x => reactions.add(x));
     if (type === TYPE_REMOVE) {
