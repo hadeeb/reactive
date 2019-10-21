@@ -3,6 +3,7 @@ const UPDATE_FROM_DEVTOOL = Symbol();
 
 /**
  * https://github.com/zalmoxisus/redux-devtools-extension/blob/master/docs/API/Arguments.md
+ * https://github.com/zalmoxisus/redux-devtools-extension/blob/master/npm-package/index.d.ts#L3
  */
 type DevtoolOptions = {
   [x: string]: any;
@@ -14,7 +15,15 @@ export function addReduxDevTool(
 ) {
   //@ts-ignore
   const extension = window.__REDUX_DEVTOOLS_EXTENSION__ as any;
-  if (!extension) return;
+  if (!extension) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        "Please install Redux devtools extension\n" +
+          "http://extension.remotedev.io/"
+      );
+    }
+    return;
+  }
 
   let ReduxTool = extension && extension.connect(options);
   let ignoreUpdate = false;

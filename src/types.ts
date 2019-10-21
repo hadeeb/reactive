@@ -31,7 +31,10 @@ export type Store<T, EVENTS = PropertyKey> = Opaque<{
   hook: MiddleWare;
 }>;
 
-type Event<T, Args extends any[] = any[]> = (store: T, ...args: Args) => void;
+export type Event<T, Args extends any[] = any[]> = (
+  store: T,
+  ...args: Args
+) => void;
 
 export type Events<T, KEYS extends PropertyKey> = Record<KEYS, Event<T>>;
 

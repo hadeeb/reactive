@@ -3,5 +3,6 @@
     "lib": ["es2019"],
     "jsx": "react",
     "strict": true
-  }
+  },
+  "include": ["src"]
 }
