@@ -10,15 +10,8 @@ import {
 import { context } from "./context";
 
 import { createReaction } from "./reaction";
-import {
-  ReactionObject,
-  Store,
-  VoidFunction,
-  Emit,
-  Options,
-  ObservableObject
-} from "./types";
-import { ReadonlyDeep } from "type-fest";
+import { ReactionObject, Store, VoidFunction, Emit, Options } from "./types";
+import { ReadonlyDeep, JsonObject } from "type-fest";
 import { options } from "./enqueue";
 
 const reducer = () => ({});
@@ -50,7 +43,7 @@ function observe<Props, T = unknown>(
 }
 
 function useStore<
-  StoreType extends ObservableObject,
+  StoreType extends JsonObject,
   EVENTS extends PropertyKey = PropertyKey
 >(): ReadonlyDeep<{
   store: StoreType;
@@ -68,9 +61,7 @@ function useStore<
   };
 }
 
-function useComputed<U, State extends ObservableObject>(
-  fn: (state: State) => U
-): U {
+function useComputed<U, State extends JsonObject>(fn: (state: State) => U): U {
   const store: Store<State> = useContext(context);
 
   if (!store && process.env.NODE_ENV !== "production") {
