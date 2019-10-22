@@ -10,8 +10,16 @@ import {
 import { context } from "./context";
 
 import { createReaction } from "./reaction";
-import { ReactionObject, Store, VoidFunction, Emit } from "./types";
-import { JsonObject, ReadonlyDeep } from "type-fest";
+import {
+  ReactionObject,
+  Store,
+  VoidFunction,
+  Emit,
+  Options,
+  ObservableObject
+} from "./types";
+import { ReadonlyDeep } from "type-fest";
+import { options } from "./enqueue";
 
 const reducer = () => ({});
 function useForceUpdate() {
@@ -42,7 +50,7 @@ function observe<Props, T = unknown>(
 }
 
 function useStore<
-  StoreType extends JsonObject,
+  StoreType extends ObservableObject,
   EVENTS extends PropertyKey = PropertyKey
 >(): ReadonlyDeep<{
   store: StoreType;
@@ -60,4 +68,44 @@ function useStore<
   };
 }
 
-export { observe, useStore };
+function useComputed<U, State extends ObservableObject>(
+  fn: (state: State) => U
+): U {
+  const store: Store<State> = useContext(context);
+
+  if (!store && process.env.NODE_ENV !== "production") {
+    throw new Error("No Store Provider found");
+  }
+
+  const reaction = useRef<ReactionObject<any>>();
+  if (!reaction.current) {
+    reaction.current = createReaction<any>(updateIfChanged);
+  }
+  const lastFn = useRef<(state: State) => U>();
+  lastFn.current = fn;
+
+  // Lazy Initialization hack
+  // Reuse options object
+  const lastResult = useRef<U | Options>(options);
+  if (lastResult.current === options) {
+    lastResult.current = getComputed();
+  }
+
+  function getComputed(): U {
+    return reaction.current!._track(() => lastFn.current!(store.state));
+  }
+
+  const forceUpdate = useForceUpdate();
+  function updateIfChanged() {
+    const currentResult = lastResult.current;
+    lastResult.current = getComputed();
+    if (currentResult !== lastResult.current) {
+      forceUpdate();
+    }
+  }
+
+  useEffect(() => reaction.current!._dispose, []);
+  return lastResult.current as U;
+}
+
+export { observe, useStore, useComputed };
