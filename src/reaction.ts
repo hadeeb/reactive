@@ -1,10 +1,7 @@
-import { Reaction, ReactionObject } from "./types";
-import { JsonObject } from "type-fest";
+import { Reaction, ReactionObject, VoidFunction } from "./types";
 import { trackers } from "./trackers";
 
-function createReaction<T extends JsonObject>(
-  cb: () => void
-): ReactionObject<T> {
+function createReaction<T>(cb: VoidFunction): ReactionObject<T> {
   const thisReaction: Reaction = { cb };
 
   function cleanup() {

@@ -13,19 +13,17 @@ import { createReaction } from "./reaction";
 import { ReactionObject, Store, VoidFunction, Emit } from "./types";
 import { JsonObject, ReadonlyDeep } from "type-fest";
 
+const reducer = () => ({});
+function useForceUpdate() {
+  return useReducer(reducer, true)[1] as VoidFunction;
+}
+
 function observe<Props, T = unknown>(
   component: RefForwardingComponent<T, Props>
 ) {
-  const reducer = () => ({});
   const memo = memoize(
     forwardRef<T, Props>(function(props, ref) {
-      const forceUpdate = useReducer(reducer, true)[1] as VoidFunction;
-
-      const store = useContext(context);
-      if (!store && process.env.NODE_ENV !== "production") {
-        throw new Error("No Store Provider found");
-      }
-
+      const forceUpdate = useForceUpdate();
       const reaction = useRef<ReactionObject<any>>();
       if (!reaction.current) {
         reaction.current = createReaction<any>(forceUpdate);

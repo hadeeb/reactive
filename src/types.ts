@@ -7,7 +7,7 @@ export type MiddleWare<EVENTS extends PropertyKey> = (
 ) => void;
 
 export type Reaction = {
-  cb: () => void;
+  cb: VoidFunction;
 };
 
 export type ReactionObject<T> = {
