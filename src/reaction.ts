@@ -1,8 +1,8 @@
 import { Reaction, ReactionObject, VoidFunction } from "./types";
 import { trackers } from "./trackers";
 
-function createReaction<T>(cb: VoidFunction): ReactionObject<T> {
-  const thisReaction: Reaction = { cb };
+function createReaction<T>(callback: VoidFunction): ReactionObject<T> {
+  const thisReaction: Reaction = { _callback: callback };
 
   function cleanup() {
     const usedValues = trackers._reactions.get(thisReaction);

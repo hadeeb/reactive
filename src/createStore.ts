@@ -25,8 +25,10 @@ function createStore<T extends JsonObject, EVENTS extends PropertyKey>(
     state,
     emit,
     hook: defaultHook,
-    addEvents(evts) {
+    addEvents(evts, newState) {
       Object.assign(events, evts);
+      Object.assign(state, newState);
+      return store;
     }
   } as Store<T, EVENTS>;
   return store;

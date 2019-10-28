@@ -61,16 +61,19 @@ function useStore<
   };
 }
 
-function useComputed<U, State extends JsonObject>(fn: (state: State) => U): U {
+function useComputed<U, State extends JsonObject>(
+  fn: (state: State) => U,
+  isEqual?: (oldValue: U, newValue: U) => boolean
+): U {
   const store: Store<State> = useContext(context);
 
   if (!store && process.env.NODE_ENV !== "production") {
     throw new Error("No Store Provider found");
   }
 
-  const reaction = useRef<ReactionObject<any>>();
+  const reaction = useRef<ReactionObject<U>>();
   if (!reaction.current) {
-    reaction.current = createReaction<any>(updateIfChanged);
+    reaction.current = createReaction<U>(updateIfChanged);
   }
   const lastFn = useRef<(state: State) => U>();
   lastFn.current = fn;
@@ -90,7 +93,7 @@ function useComputed<U, State extends JsonObject>(fn: (state: State) => U): U {
   function updateIfChanged() {
     const currentResult = lastResult.current;
     lastResult.current = getComputed();
-    if (currentResult !== lastResult.current) {
+    if (!(isEqual || Object.is)(currentResult as U, lastResult.current)) {
       forceUpdate();
     }
   }

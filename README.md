@@ -11,7 +11,7 @@ Reactive global state for react apps
 
 ---
 
-- ~1.2 KB (min+gzip)
+- ~1 KB (min+gzip)
 - Maps,Sets,etc are not reactive
 - Wrapper works only on functional components
 

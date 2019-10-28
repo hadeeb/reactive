@@ -22,9 +22,7 @@ function observeObject<T extends ObservableObject>(obj: T): T {
         return res;
       }
       addTrackers(target, prop);
-      return res !== null && typeof res === "object"
-        ? observeObject(res as T)
-        : res;
+      return typeof res === "object" && res ? observeObject(res as T) : res;
     },
     //Setter
     set(target, prop, value, reciever) {

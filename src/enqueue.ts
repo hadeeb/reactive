@@ -4,7 +4,9 @@ let queue: Set<Reaction> = new Set();
 let isUpdating = false;
 
 const options: Options = {
-  batch: x => x()
+  batch: function(callback) {
+    callback();
+  }
 };
 
 function enqueue(x: Reaction) {
@@ -16,7 +18,7 @@ function enqueue(x: Reaction) {
     queue = new Set();
     options.batch(() => {
       currentQueue.forEach(x => {
-        x.cb();
+        x._callback();
       });
     });
     isUpdating = false;

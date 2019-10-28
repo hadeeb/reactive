@@ -7,7 +7,7 @@ export type MiddleWare<EVENTS extends PropertyKey> = (
 ) => void;
 
 export type Reaction = {
-  cb: VoidFunction;
+  _callback: VoidFunction;
 };
 
 export type ReactionObject<T> = {
@@ -28,10 +28,16 @@ export type Trackers = {
   _toProxy: WeakMap<ObservableObject, ObservableObject>;
 };
 
-export type Store<T, EVENTS extends PropertyKey = PropertyKey> = Opaque<{
+export type Store<
+  T extends JsonObject,
+  EVENTS extends PropertyKey = PropertyKey
+> = Opaque<{
   state: T;
   emit: Emit<EVENTS>;
-  addEvents: <Q extends PropertyKey>(events: Events<T, Q>) => void;
+  addEvents: <NewEVENTS extends PropertyKey, NewSTATE extends JsonObject>(
+    events: Events<T & NewSTATE, NewEVENTS>,
+    newState?: NewSTATE
+  ) => Store<T & NewSTATE, EVENTS | NewEVENTS>;
   hook: MiddleWare<any>;
 }>;
 
