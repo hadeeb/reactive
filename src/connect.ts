@@ -61,45 +61,4 @@ function useStore<
   };
 }
 
-function useComputed<U, State extends JsonObject>(
-  fn: (state: State) => U,
-  isEqual?: (oldValue: U, newValue: U) => boolean
-): U {
-  const store: Store<State> = useContext(context);
-
-  if (!store && process.env.NODE_ENV !== "production") {
-    throw new Error("No Store Provider found");
-  }
-
-  const reaction = useRef<ReactionObject<U>>();
-  if (!reaction.current) {
-    reaction.current = createReaction<U>(updateIfChanged);
-  }
-  const lastFn = useRef<(state: State) => U>();
-  lastFn.current = fn;
-
-  // Lazy Initialization hack
-  // Reuse options object
-  const lastResult = useRef<U | Options>(options);
-  if (lastResult.current === options) {
-    lastResult.current = getComputed();
-  }
-
-  function getComputed(): U {
-    return reaction.current!._track(() => lastFn.current!(store.state));
-  }
-
-  const forceUpdate = useForceUpdate();
-  function updateIfChanged() {
-    const currentResult = lastResult.current;
-    lastResult.current = getComputed();
-    if (!(isEqual || Object.is)(currentResult as U, lastResult.current)) {
-      forceUpdate();
-    }
-  }
-
-  useEffect(() => reaction.current!._dispose, []);
-  return lastResult.current as U;
-}
-
-export { observe, useStore, useComputed };
+export { observe, useStore };
