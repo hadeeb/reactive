@@ -1,6 +1,6 @@
 import {
   RefForwardingComponent,
-  memo as memoize,
+  memo,
   forwardRef,
   useReducer,
   useRef,
@@ -10,9 +10,8 @@ import {
 import { context } from "./context";
 
 import { createReaction } from "./reaction";
-import { ReactionObject, Store, VoidFunction, Emit, Options } from "./types";
+import { ReactionObject, Store, VoidFunction, Emit } from "./types";
 import { ReadonlyDeep, JsonObject } from "type-fest";
-import { options } from "./enqueue";
 
 const reducer = () => ({});
 function useForceUpdate() {
@@ -22,7 +21,7 @@ function useForceUpdate() {
 function observe<Props, T = unknown>(
   component: RefForwardingComponent<T, Props>
 ) {
-  const memo = memoize(
+  const observedComponent = memo(
     forwardRef<T, Props>(function(props, ref) {
       const forceUpdate = useForceUpdate();
       const reaction = useRef<ReactionObject<any>>();
@@ -36,10 +35,10 @@ function observe<Props, T = unknown>(
     })
   );
 
-  memo.displayName = `Observed(${component.displayName ||
+  observedComponent.displayName = `Observed(${component.displayName ||
     component.name ||
     "Component"})`;
-  return memo;
+  return observedComponent;
 }
 
 function useStore<
