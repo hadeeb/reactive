@@ -5,7 +5,7 @@ import { Events, Store, MiddleWare } from "./types";
 
 function createStore<T extends JsonObject, EVENTS extends PropertyKey>(
   events: Events<T, EVENTS>,
-  initialState: T = {} as T
+  initialState: T
 ): Store<T, EVENTS> {
   const state = observeObject(initialState);
 
