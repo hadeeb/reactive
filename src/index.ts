@@ -1,5 +1,5 @@
 export { createStore } from "./createStore";
-export { StoreProvider } from "./context";
+export { StoreProvider, context as ReactiveContext } from "./context";
 export { options } from "./enqueue";
 export { useStore, observe } from "./connect";
 
