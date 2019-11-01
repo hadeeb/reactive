@@ -5,13 +5,18 @@ import {
   useReducer,
   useRef,
   useEffect,
-  useContext
+  useContext,
+  MemoExoticComponent,
+  ForwardRefExoticComponent,
+  PropsWithoutRef,
+  RefAttributes
 } from "react";
-import { context } from "./context";
+import invariant from "tiny-invariant";
+import { ReadonlyDeep, JsonObject } from "type-fest";
 
+import { context } from "./context";
 import { createReaction } from "./reaction";
 import { ReactionObject, Store, VoidFunction, Emit } from "./types";
-import { ReadonlyDeep, JsonObject } from "type-fest";
 
 const reducer = () => ({});
 function useForceUpdate() {
@@ -20,7 +25,9 @@ function useForceUpdate() {
 
 function observe<Props, T = unknown>(
   component: RefForwardingComponent<T, Props>
-) {
+): MemoExoticComponent<
+  ForwardRefExoticComponent<PropsWithoutRef<Props> & RefAttributes<T>>
+> {
   const observedComponent = memo(
     forwardRef<T, Props>(function(props, ref) {
       const forceUpdate = useForceUpdate();
@@ -50,9 +57,10 @@ function useStore<
 }> {
   const store: Store<StoreType, EVENTS> = useContext(context);
 
-  if (!store && process.env.NODE_ENV !== "production") {
-    throw new Error("No Store Provider found");
-  }
+  invariant(
+    store,
+    "No Store Provider found\n" + "Did you forget to add StoreProvider?"
+  );
 
   return {
     store: store.state as ReadonlyDeep<StoreType>,

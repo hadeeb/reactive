@@ -1,3 +1,5 @@
+import invariant from "tiny-invariant";
+
 import { isSymbol } from "./util";
 import { enqueue } from "./enqueue";
 import { Reaction, ObservableObject } from "./types";
@@ -7,6 +9,11 @@ const $IterateTracker = Symbol();
 const TYPE_ADD = 1;
 const TYPE_EDIT = 2;
 const TYPE_REMOVE = 3;
+
+const InvalidMutationMessage =
+  "Store shouldn't be modified outside event listeners\n" +
+  "If you are trying to do some asynchronous actions inside event listeners,\n" +
+  "use addAsyncEvents from 'reactive/enhance'";
 
 function observeObject<T extends ObservableObject>(obj: T): T {
   // Already tracked
@@ -26,14 +33,8 @@ function observeObject<T extends ObservableObject>(obj: T): T {
     },
     //Setter
     set(target, prop, value, reciever) {
-      if (!trackers._isEditing) {
-        if (process.env.NODE_ENV !== "production") {
-          throw new Error(
-            "Store shouldn't be modified outside event listeners"
-          );
-        }
-        return false;
-      }
+      invariant(trackers._isEditing, InvalidMutationMessage);
+
       const result = Reflect.set(target, prop, value, reciever);
       if (target.hasOwnProperty(prop)) {
         triggerTrackers(target, TYPE_EDIT, prop);
@@ -44,6 +45,8 @@ function observeObject<T extends ObservableObject>(obj: T): T {
     },
     //Delete property
     deleteProperty(target, prop) {
+      invariant(trackers._isEditing, InvalidMutationMessage);
+
       const result = Reflect.deleteProperty(target, prop);
       triggerTrackers(target, TYPE_REMOVE, prop);
       return result;
