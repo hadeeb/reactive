@@ -10,7 +10,10 @@ function createStore<T extends JsonObject, EVENTS extends PropertyKey>(
   const state = observeObject(initialState);
 
   const emit = function(event: EVENTS, args: any) {
+    const prevTracker = trackers._currentWatcher;
+    trackers._currentWatcher = null;
     store.hook(store, event, args);
+    trackers._currentWatcher = prevTracker;
   };
 
   const defaultHook: MiddleWare<EVENTS> = (_store, event, args: any) => {
