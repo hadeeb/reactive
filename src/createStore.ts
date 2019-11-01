@@ -8,18 +8,19 @@ function createStore<T extends JsonObject, EVENTS extends PropertyKey>(
   initialState: T
 ): Store<T, EVENTS> {
   const state = observeObject(initialState);
+  const eventsClone = Object.assign({}, events);
 
-  const emit = function(event: EVENTS, args: any) {
+  const emit = function(event: EVENTS, payload: any) {
     const prevTracker = trackers._currentWatcher;
     trackers._currentWatcher = null;
-    store.hook(store, event, args);
+    store.hook(store, event, payload);
     trackers._currentWatcher = prevTracker;
   };
 
-  const defaultHook: MiddleWare<EVENTS> = (_store, event, args: any) => {
-    if (events[event]) {
+  const defaultHook: MiddleWare<EVENTS> = (_store, event, payload) => {
+    if (eventsClone[event]) {
       trackers._isEditing = true;
-      events[event](state, args);
+      eventsClone[event](state, payload);
       trackers._isEditing = false;
     }
   };
@@ -29,9 +30,8 @@ function createStore<T extends JsonObject, EVENTS extends PropertyKey>(
     emit,
     hook: defaultHook,
     addEvents(evts, newState) {
-      Object.assign(events, evts);
+      Object.assign(eventsClone, evts);
       Object.assign(state, newState);
-      return store;
     }
   } as Store<T, EVENTS>;
   return store;

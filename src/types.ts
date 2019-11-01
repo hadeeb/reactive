@@ -1,9 +1,9 @@
-import { Opaque, JsonObject, JsonArray } from "type-fest";
+import { Opaque, JsonObject, JsonArray, ReadonlyDeep } from "type-fest";
 
 export type MiddleWare<EVENTS extends PropertyKey> = (
-  store: Store<any, EVENTS>,
+  store: ReadonlyDeep<Store<any, EVENTS>>,
   event: EVENTS,
-  args?: any
+  payload?: any
 ) => void;
 
 export type Reaction = {
@@ -37,16 +37,16 @@ export type Store<
   addEvents: <NewEVENTS extends PropertyKey, NewSTATE extends JsonObject>(
     events: Events<T & NewSTATE, NewEVENTS>,
     newState?: NewSTATE
-  ) => Store<T & NewSTATE, EVENTS | NewEVENTS>;
+  ) => void;
   hook: MiddleWare<any>;
 }>;
 
 export type Emit<EVENTS extends PropertyKey = PropertyKey> = (
   event: EVENTS,
-  args?: any
+  payload?: any
 ) => void;
 
-export type Event<T, Args = any> = (store: T, args?: Args) => void;
+export type Event<T, Args = any> = (store: T, payload?: Args) => void;
 
 export type Events<T, KEYS extends PropertyKey> = Record<KEYS, Event<T>>;
 
