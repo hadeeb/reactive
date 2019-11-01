@@ -1,10 +1,13 @@
 import {
+  Component,
+  ComponentClass,
   forwardRef,
   ForwardRefExoticComponent,
   FunctionComponent,
   memo,
   MemoExoticComponent,
   PropsWithoutRef,
+  ReactNode,
   RefAttributes,
   RefForwardingComponent,
   useContext,
@@ -22,9 +25,13 @@ import {
   ReactionObject,
   VoidFunction
 } from "./internaltypes";
+import { $IterateTracker } from "./observe";
 import { createReaction } from "./reaction";
 import { Dispatch, Store } from "./types";
 import { ONE as CREATED_AND_SHOULD_UPDATE, TWO as MOUNTED } from "./util";
+
+const NoProviderError =
+  "No Store Provider found\nDid you forget to add StoreProvider?";
 
 const reducer = () => ({});
 const useForceUpdate = function() {
@@ -34,10 +41,10 @@ const useForceUpdate = function() {
 const EMPTY_ARRAY: any[] = [];
 const EMPTY_OBJECT = {};
 
-function observe<Props>(
+function observeLite<Props>(
   component: FunctionComponent<Props>
 ): MemoExoticComponent<FunctionComponent<Props>>;
-function observe<Props, T = unknown>(
+function observeLite<Props, T = unknown>(
   component: RefForwardingComponent<T, Props>,
   options: {
     forwardRef: boolean;
@@ -45,7 +52,7 @@ function observe<Props, T = unknown>(
 ): MemoExoticComponent<
   ForwardRefExoticComponent<PropsWithoutRef<Props> & RefAttributes<T>>
 >;
-function observe<Props, T = unknown>(
+function observeLite<Props, T = unknown>(
   component: RefForwardingComponent<T, Props>,
   options?: {
     forwardRef?: boolean;
@@ -102,12 +109,72 @@ const useStore = function<StoreType extends Store<any>>(): [
 ] {
   const store = useContext(context);
 
-  invariant(
-    store,
-    "No Store Provider found\nDid you forget to add StoreProvider?"
-  );
+  invariant(store, NoProviderError);
 
   return [store.getState(), store.dispatch];
 };
+
+interface Observed extends Component {
+  [$IterateTracker]: ReactionObject<ReactNode>;
+}
+
+function decorate<T extends typeof Component>(component: T): T {
+  const target = component.prototype as Observed;
+  const baseRender = target.render;
+
+  target.render = function() {
+    var that = this;
+    invariant(that.context, NoProviderError);
+    that[$IterateTracker] = createReaction<ReactNode>(
+      target.forceUpdate.bind(that)
+    );
+    const boundRender = baseRender.bind(that);
+    function trackedRender() {
+      return that[$IterateTracker]._track(boundRender);
+    }
+    target.render = trackedRender;
+    return trackedRender();
+  };
+  const baseUnmount = target.componentWillUnmount;
+  target.componentWillUnmount = function() {
+    baseUnmount && baseUnmount();
+    this[$IterateTracker]._cleanup();
+  };
+  invariant(!component.contextType, "Don't use contextType with observe");
+  component.contextType = context;
+  return component;
+}
+
+//@ts-ignore
+function observe<Props>(
+  component: FunctionComponent<Props>
+): MemoExoticComponent<FunctionComponent<Props>>;
+function observe<Props, T = unknown>(
+  component: RefForwardingComponent<T, Props>,
+  options: {
+    forwardRef: boolean;
+  }
+): MemoExoticComponent<
+  ForwardRefExoticComponent<PropsWithoutRef<Props> & RefAttributes<T>>
+>;
+function observe<T extends typeof Component>(component: T): T;
+function observe(
+  component:
+    | FunctionComponent<unknown>
+    | RefForwardingComponent<unknown, unknown>
+    | ComponentClass,
+  options?: {
+    forwardRef?: boolean;
+  }
+) {
+  if (component.prototype.isReactComponent) {
+    return decorate(component as ComponentClass);
+  } else {
+    return observeLite(
+      component as ForwardRefExoticComponent<unknown>,
+      options as { forwardRef: boolean }
+    );
+  }
+}
 
 export { observe, useStore };
