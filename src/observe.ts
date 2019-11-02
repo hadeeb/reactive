@@ -90,22 +90,25 @@ function triggerTrackers(
 ) {
   const deps = trackers._depList.get(target);
   if (!deps) return;
-  const reactions = new Set<Reaction>();
-  const t = deps.get(key);
-  t && t.forEach(x => reactions.add(x));
+  const reactions = deps.get(key);
+  if (reactions) {
+    reactions.forEach(x => {
+      enqueue(x);
+    });
+  }
 
   if (type !== TYPE_EDIT) {
     const iterateKey = Array.isArray(target) ? "length" : $IterateTracker;
-    const t = deps.get(iterateKey);
-    t && t.forEach(x => reactions.add(x));
+    const reactions = deps.get(iterateKey);
+    if (reactions) {
+      reactions.forEach(x => {
+        enqueue(x);
+      });
+    }
     if (type === TYPE_REMOVE) {
       deps.delete(key);
     }
   }
-
-  reactions.forEach(x => {
-    enqueue(x);
-  });
 }
 
 const builtInSymbols = new Set(
