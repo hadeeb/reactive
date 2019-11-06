@@ -1,4 +1,4 @@
-import { Trackers } from "./types";
+import { Trackers } from "./internaltypes";
 
 const trackers: Trackers = {
   _isEditing: false,

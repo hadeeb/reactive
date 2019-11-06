@@ -1,17 +1,17 @@
-import { Reaction, ReactionObject, VoidFunction } from "./types";
+import { Reaction, ReactionObject, VoidFunction } from "./internaltypes";
 import { trackers } from "./trackers";
 
-function createReaction<T>(callback: VoidFunction): ReactionObject<T> {
+const createReaction = function<T>(callback: VoidFunction): ReactionObject<T> {
   const thisReaction: Reaction = { _callback: callback };
 
-  function cleanup() {
+  const cleanup = function() {
     const usedValues = trackers._reactions.get(thisReaction);
     if (usedValues) {
       usedValues.forEach(val =>
         trackers._depList.get(val)!.forEach(x => x.delete(thisReaction))
       );
     }
-  }
+  };
 
   return {
     _track: fn => {
@@ -26,6 +26,6 @@ function createReaction<T>(callback: VoidFunction): ReactionObject<T> {
     },
     _dispose: cleanup
   };
-}
+};
 
 export { createReaction };

@@ -16,14 +16,15 @@ import { ReadonlyDeep, JsonObject } from "type-fest";
 
 import { context } from "./context";
 import { createReaction } from "./reaction";
-import { ReactionObject, Store, VoidFunction, Emit } from "./types";
+import { Store, Dispatch } from "./types";
+import { VoidFunction, ReactionObject } from "./internaltypes";
 
 const reducer = () => ({});
-function useForceUpdate() {
+const useForceUpdate = function() {
   return useReducer(reducer, true)[1] as VoidFunction;
-}
+};
 
-function observe<Props, T = unknown>(
+const observe = function<Props, T = unknown>(
   component: RefForwardingComponent<T, Props>
 ): MemoExoticComponent<
   ForwardRefExoticComponent<PropsWithoutRef<Props> & RefAttributes<T>>
@@ -46,15 +47,12 @@ function observe<Props, T = unknown>(
     component.name ||
     "Component"})`;
   return observedComponent;
-}
+};
 
-function useStore<
+const useStore = function<
   StoreType extends JsonObject,
   EVENTS extends PropertyKey = PropertyKey
->(): ReadonlyDeep<{
-  store: StoreType;
-  emit: Emit<EVENTS>;
-}> {
+>(): [ReadonlyDeep<StoreType>, Dispatch<EVENTS>] {
   const store: Store<StoreType, EVENTS> = useContext(context);
 
   invariant(
@@ -62,10 +60,7 @@ function useStore<
     "No Store Provider found\n" + "Did you forget to add StoreProvider?"
   );
 
-  return {
-    store: store.state as ReadonlyDeep<StoreType>,
-    emit: store.emit
-  };
-}
+  return [store.getState() as ReadonlyDeep<StoreType>, store.dispatch];
+};
 
 export { observe, useStore };

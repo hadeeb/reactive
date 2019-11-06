@@ -1,4 +1,5 @@
 import { Store } from "reactive";
+
 const UPDATE_FROM_DEVTOOL = Symbol();
 
 /**
@@ -10,34 +11,28 @@ type DevtoolOptions = {
 };
 
 export function addReduxDevTool(
-  store: Store<any, any>,
-  options: DevtoolOptions = {}
-) {
+  store: Store<any>,
+  options?: DevtoolOptions
+): void {
   //@ts-ignore
   const extension = window.__REDUX_DEVTOOLS_EXTENSION__ as any;
   if (!extension) {
     if (process.env.NODE_ENV !== "production") {
-      console.warn(
-        "Please install Redux devtools extension\n" +
-          "http://extension.remotedev.io/"
+      console.info(
+        "%cInstall Redux DevTools extension for a better development experience\n" +
+          "%chttp://extension.remotedev.io/",
+        "font-weight:bold",
+        "font-weight:normal"
       );
     }
     return;
   }
 
-  let ReduxTool = extension && extension.connect(options);
+  let ReduxTool = extension && extension.connect(options || {});
   let ignoreUpdate = false;
-  const state = store.state;
-  store.addEvents({
-    [UPDATE_FROM_DEVTOOL](state, newState) {
-      for (let i in state) {
-        delete state[i];
-      }
-      for (let i in newState) {
-        state[i] = newState[i];
-      }
-    }
-  });
+
+  ReduxTool.init(store.getState());
+
   ReduxTool.subscribe(function(
     message: Record<"type" | "state" | "payload", any>
   ) {
@@ -47,19 +42,30 @@ export function addReduxDevTool(
         message.payload.type === "JUMP_TO_STATE";
 
       const newState = JSON.parse(message.state);
-      store.emit(UPDATE_FROM_DEVTOOL, newState);
+      store.dispatch(UPDATE_FROM_DEVTOOL, newState);
     }
   });
-  ReduxTool.init(state);
 
-  const oldHook = store.hook;
+  const oldHook = store.$;
 
-  store.hook = (store, event: PropertyKey, payload: any) => {
-    oldHook(store, event, payload);
+  store.$ = function(store, action, payload) {
     if (!ignoreUpdate) {
-      ReduxTool.send({ type: String(event), payload }, state);
+      ReduxTool.send({ type: String(action), payload }, store.getState());
     } else {
       ignoreUpdate = false;
+    }
+
+    if (action === UPDATE_FROM_DEVTOOL) {
+      const state = store.getState();
+
+      for (let i in state) {
+        delete state[i];
+      }
+      for (let i in payload) {
+        state[i] = payload[i];
+      }
+    } else {
+      oldHook(store, action);
     }
   };
 }

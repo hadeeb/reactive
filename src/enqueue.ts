@@ -1,4 +1,5 @@
-import { Options, Reaction } from "./types";
+import { Options } from "./types";
+import { Reaction } from "./internaltypes";
 
 let queue: Set<Reaction> = new Set();
 let isUpdating = false;
@@ -9,7 +10,7 @@ const options: Options = {
   }
 };
 
-function enqueue(x: Reaction) {
+const enqueue = function(x: Reaction) {
   queue.add(x);
   if (isUpdating) return;
   isUpdating = true;
@@ -23,6 +24,6 @@ function enqueue(x: Reaction) {
     });
     isUpdating = false;
   });
-}
+};
 
 export { enqueue, options };

@@ -2,7 +2,7 @@ import invariant from "tiny-invariant";
 
 import { isSymbol } from "./util";
 import { enqueue } from "./enqueue";
-import { Reaction, ObservableObject } from "./types";
+import { ObservableObject } from "./internaltypes";
 import { trackers } from "./trackers";
 
 const $IterateTracker = Symbol();
@@ -13,9 +13,9 @@ const TYPE_REMOVE = 3;
 const InvalidMutationMessage =
   "Store shouldn't be modified outside event listeners\n" +
   "If you are trying to do some asynchronous actions inside event listeners,\n" +
-  "use addAsyncEvents from 'reactive/enhance'";
+  "dispatch another action after async operations";
 
-function observeObject<T extends ObservableObject>(obj: T): T {
+const observeObject = function<T extends ObservableObject>(obj: T): T {
   // Already tracked
   if (trackers._toProxy.has(obj)) {
     return trackers._toProxy.get(obj) as T;
@@ -58,9 +58,9 @@ function observeObject<T extends ObservableObject>(obj: T): T {
 
   trackers._toProxy.set(obj, proxy);
   return proxy;
-}
+};
 
-function addTrackers(target: ObservableObject, key: PropertyKey) {
+const addTrackers = function(target: ObservableObject, key: PropertyKey) {
   if (trackers._currentWatcher) {
     let currentTracker = trackers._depList.get(target);
     if (!currentTracker) {
@@ -76,9 +76,9 @@ function addTrackers(target: ObservableObject, key: PropertyKey) {
       depList.add(target);
     }
   }
-}
+};
 
-function triggerTrackers(
+const triggerTrackers = function(
   target: ObservableObject,
   type: number,
   key: PropertyKey
@@ -104,7 +104,7 @@ function triggerTrackers(
       deps.delete(key);
     }
   }
-}
+};
 
 const builtInSymbols = new Set(
   Object.getOwnPropertyNames(Symbol)

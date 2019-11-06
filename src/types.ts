@@ -1,56 +1,35 @@
-import { Opaque, JsonObject, JsonArray, ReadonlyDeep } from "type-fest";
+import { Opaque, JsonObject, ReadonlyDeep } from "type-fest";
+import { VoidFunction, StoreHook } from "./internaltypes";
 
-export type MiddleWare<EVENTS extends PropertyKey> = (
-  store: ReadonlyDeep<Store<any, EVENTS>>,
-  event: EVENTS,
-  payload?: any
-) => void;
-
-export type Reaction = {
-  _callback: VoidFunction;
-};
-
-export type ReactionObject<T> = {
-  _track: (fn: () => T) => T;
-  _dispose: () => void;
-};
-
-export type ObservableObject = JsonObject | JsonArray;
-
-type PropertyKeyToReactionMap = Map<PropertyKey, Set<Reaction>>;
-type ObjectSet = Set<ObservableObject>;
-
-export type Trackers = {
-  _isEditing: boolean;
-  _currentWatcher: Reaction | null;
-  _depList: WeakMap<ObservableObject, PropertyKeyToReactionMap>;
-  _reactions: WeakMap<Reaction, ObjectSet>;
-  _toProxy: WeakMap<ObservableObject, ObservableObject>;
+export type Action<EVENTS extends PropertyKey = PropertyKey> = {
+  type: EVENTS;
+  payload?: any;
 };
 
 export type Store<
   T extends JsonObject,
   EVENTS extends PropertyKey = PropertyKey
 > = Opaque<{
-  state: T;
-  emit: Emit<EVENTS>;
-  addEvents: <NewEVENTS extends PropertyKey, NewSTATE extends JsonObject>(
-    events: Events<T & NewSTATE, NewEVENTS>,
-    newState?: NewSTATE
-  ) => void;
-  hook: MiddleWare<any>;
+  getState: () => ReadonlyDeep<T>;
+  dispatch: Dispatch<EVENTS>;
+  $: StoreHook<EVENTS>;
 }>;
 
-export type Emit<EVENTS extends PropertyKey = PropertyKey> = (
-  event: EVENTS,
+export type Dispatch<EVENTS extends PropertyKey = PropertyKey> = (
+  action: EVENTS,
   payload?: any
 ) => void;
 
-export type Event<T, Args = any> = (store: T, payload?: Args) => void;
+export type EventListener<
+  T,
+  EVENTS extends PropertyKey = PropertyKey,
+  Args = any
+> = (store: { state: T; dispatch: Dispatch<EVENTS> }, payload?: Args) => void;
 
-export type Events<T, KEYS extends PropertyKey> = Record<KEYS, Event<T>>;
-
-export type VoidFunction = () => void;
+export type EventListeners<T, KEYS extends PropertyKey> = Record<
+  KEYS,
+  EventListener<T, KEYS>
+>;
 
 export type Options = {
   /**
@@ -63,6 +42,7 @@ export type Options = {
   batch: (callback: VoidFunction) => void;
 };
 
+// Helpers
 export type GetEventTypes<T extends Store<any, any>> = T extends Store<
   any,
   infer P
@@ -76,3 +56,7 @@ export type GetStoreType<T extends Store<any, any>> = T extends Store<
 >
   ? P
   : unknown;
+
+export type GetEvents<
+  T extends EventListeners<any, any>
+> = T extends EventListeners<any, infer P> ? P : unknown;
