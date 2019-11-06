@@ -35,9 +35,15 @@ const observeObject = function<T extends ObservableObject>(obj: T): T {
     set(target, prop, value, reciever) {
       invariant(trackers._isEditing, InvalidMutationMessage);
 
-      const trackType = target.hasOwnProperty(prop) ? TYPE_EDIT : TYPE_ADD;
+      if (target.hasOwnProperty(prop)) {
+        const currentValue = Reflect.get(target, prop);
+        if (currentValue !== value) {
+          triggerTrackers(target, TYPE_EDIT, prop);
+        }
+      } else {
+        triggerTrackers(target, TYPE_ADD, prop);
+      }
 
-      triggerTrackers(target, trackType, prop);
       return Reflect.set(target, prop, value, reciever);
     },
     //Delete property
