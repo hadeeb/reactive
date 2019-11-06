@@ -25,31 +25,35 @@ import { StoreProvider, createStore, observe, useStore, options } from "...";
 
 const store = createStore(
   {
-    INCREMENT(state) {
+    INCREMENT({ state }) {
       state.counter++;
     },
-    DECREMENT(state) {
+    DECREMENT({ state }) {
       state.counter--;
+    },
+    async ASYNC_INCREMENT({ dispatch }) {
+      await someApi();
+      dispatch("INCREMENT");
     }
   },
   { counter: 0 }
 );
 
 function Child() {
-  const { store, emit } = useStore();
+  const [store, dispatch] = useStore();
   return (
     <div>
       <span>{store.counter}</span>
       <button
         onClick={() => {
-          emit("INCREMENT");
+          dispatch("INCREMENT");
         }}
       >
         +
       </button>
       <button
         onClick={() => {
-          emit("DECREMENT");
+          dispatch("DECREMENT");
         }}
       >
         -
@@ -83,47 +87,10 @@ const store = createStore(...,...)
 addReduxDevTool(store,options)
 ```
 
-### Async Events
-
-Perform Asynchronous actions on events
-
-```tsx
-import {addAsyncEvents} from ".../enhance"
-const store = createStore(...,...)
-
-addAsyncEvents(store, {
-  ASYNC_FETCH({state,emit}){
-    fetchDataFromApi(state.query)
-      .then(data=>{
-        emit("API_RESPONSE",data);
-      })
-  }
-})
-
-function Component() {
-  const { store, emit } = useStore();
-  return (
-    <div>
-      <span>{store.data}</span>
-      <button
-        onClick={() => {
-          emit("ASYNC_FETCH");
-        }}
-      >
-        Fetch Data
-      </button>
-    </div>
-  );
-}
-```
-
 ## TODO
 
 - Documentation
-  - codesplit with `addEvents`
-  - creating an enhancer with `hook` option
   - batch updates
   - type helpers
 - Tests
 - Example Project
-- Decouple react integration(Maybe)
