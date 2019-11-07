@@ -31,6 +31,9 @@ const store = createStore(
     DECREMENT({ state }) {
       state.counter--;
     },
+    UPDATE_COUNTER({ state }, payload) {
+      state.counter = state.counter + payload;
+    },
     async ASYNC_INCREMENT({ dispatch }) {
       await someApi();
       dispatch("INCREMENT");
@@ -57,6 +60,13 @@ function Child() {
         }}
       >
         -
+      </button>
+      <button
+        onClick={() => {
+          dispatch("UPDATE_COUNTER", 5);
+        }}
+      >
+        Increment by 5
       </button>
     </div>
   );
@@ -90,7 +100,5 @@ addReduxDevTool(store,options)
 ## TODO
 
 - Documentation
-  - batch updates
   - type helpers
-- Tests
 - Example Project
