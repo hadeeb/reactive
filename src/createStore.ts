@@ -1,13 +1,12 @@
-import { JsonObject } from "type-fest";
 import { observeObject } from "./observe";
 import { trackers } from "./trackers";
 import { EventListeners, Store, Dispatch } from "./types";
-import { StoreHook } from "./internaltypes";
+import { StoreHook, ObservableObject } from "./internaltypes";
 
-const createStore = function<T extends JsonObject, EVENTS extends PropertyKey>(
-  events: EventListeners<T, EVENTS>,
-  initialState: T
-): Store<T, EVENTS> {
+const createStore = function<
+  T extends ObservableObject,
+  EVENTS extends PropertyKey
+>(events: EventListeners<T, EVENTS>, initialState: T): Store<T, EVENTS> {
   const state = observeObject(initialState);
 
   const dispatch: Dispatch<EVENTS> = function(action, payload) {

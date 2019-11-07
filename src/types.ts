@@ -1,13 +1,10 @@
-import { Opaque, JsonObject, ReadonlyDeep } from "type-fest";
-import { VoidFunction, StoreHook } from "./internaltypes";
+import { Opaque, ReadonlyDeep } from "type-fest";
+import { StoreHook, ObservableObject } from "./internaltypes";
 
-export type Action<EVENTS extends PropertyKey = PropertyKey> = {
-  type: EVENTS;
-  payload?: any;
-};
+export { ObservableObject };
 
 export type Store<
-  T extends JsonObject,
+  T extends ObservableObject,
   EVENTS extends PropertyKey = PropertyKey
 > = Opaque<{
   getState: () => ReadonlyDeep<T>;
@@ -30,17 +27,6 @@ export type EventListeners<T, KEYS extends PropertyKey> = Record<
   KEYS,
   EventListener<T, KEYS>
 >;
-
-export type Options = {
-  /**
-   * Batch updates.
-   *
-   * It should execute the callback.
-   * @example
-   * options.batch = ReactDOM.unstable_batchedUpdates
-   */
-  batch: (callback: VoidFunction) => void;
-};
 
 // Helpers
 export type GetEventTypes<T extends Store<any, any>> = T extends Store<

@@ -1,5 +1,4 @@
-import { Options } from "./types";
-import { Reaction } from "./internaltypes";
+import { Reaction, Options } from "./internaltypes";
 
 let queue: Set<Reaction> = new Set();
 let isUpdating = false;

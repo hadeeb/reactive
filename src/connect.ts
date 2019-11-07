@@ -12,12 +12,16 @@ import {
   RefAttributes
 } from "react";
 import invariant from "tiny-invariant";
-import { ReadonlyDeep, JsonObject } from "type-fest";
+import { ReadonlyDeep } from "type-fest";
 
 import { context } from "./context";
 import { createReaction } from "./reaction";
 import { Store, Dispatch } from "./types";
-import { VoidFunction, ReactionObject } from "./internaltypes";
+import {
+  VoidFunction,
+  ReactionObject,
+  ObservableObject
+} from "./internaltypes";
 
 const reducer = () => ({});
 const useForceUpdate = function() {
@@ -50,7 +54,7 @@ const observe = function<Props, T = unknown>(
 };
 
 const useStore = function<
-  StoreType extends JsonObject,
+  StoreType extends ObservableObject,
   EVENTS extends PropertyKey = PropertyKey
 >(): [ReadonlyDeep<StoreType>, Dispatch<EVENTS>] {
   const store: Store<StoreType, EVENTS> = useContext(context);
