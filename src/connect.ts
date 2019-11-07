@@ -9,7 +9,8 @@ import {
   MemoExoticComponent,
   ForwardRefExoticComponent,
   PropsWithoutRef,
-  RefAttributes
+  RefAttributes,
+  Ref
 } from "react";
 import invariant from "tiny-invariant";
 import { ReadonlyDeep } from "type-fest";
@@ -33,24 +34,24 @@ const observe = function<Props, T = unknown>(
 ): MemoExoticComponent<
   ForwardRefExoticComponent<PropsWithoutRef<Props> & RefAttributes<T>>
 > {
-  const observedComponent = memo(
-    forwardRef<T, Props>(function(props, ref) {
-      const forceUpdate = useForceUpdate();
-      const reaction = useRef<ReactionObject<any>>();
-      if (!reaction.current) {
-        reaction.current = createReaction<any>(forceUpdate);
-      }
+  const observedComponent = function(props: Props, ref: Ref<T>) {
+    const forceUpdate = useForceUpdate();
+    const reaction = useRef<ReactionObject<any>>();
+    if (!reaction.current) {
+      reaction.current = createReaction<any>(forceUpdate);
+    }
 
-      useEffect(() => reaction.current!._dispose, []);
+    useEffect(() => reaction.current!._dispose, []);
 
-      return reaction.current._track(() => component(props, ref));
-    })
-  );
+    return reaction.current._track(() => component(props, ref));
+  };
 
-  observedComponent.displayName = `Observed(${component.displayName ||
-    component.name ||
-    "Component"})`;
-  return observedComponent;
+  if (process.env.NODE_ENV !== "production") {
+    observedComponent.displayName = `Observed(${component.displayName ||
+      component.name ||
+      "Component"})`;
+  }
+  return memo(forwardRef(observedComponent));
 };
 
 const useStore = function<

@@ -6,6 +6,10 @@ const context = createContext<Store<any, any>>((false as unknown) as Store<
   any
 >);
 
+if (process.env.NODE_ENV !== "production") {
+  context.displayName = `ReactiveStore`;
+}
+
 const Provider = context.Provider;
 
 const StoreProvider: FunctionComponent<{ store: Store<any, any> }> = ({
