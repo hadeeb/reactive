@@ -8,7 +8,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "microbundle build --raw -f es,cjs",
-    "size": "size-limit"
+    "size": "size-limit",
+    "test": "ava"
   },
   "sideEffects": false,
   "peerDependencies": {
@@ -19,10 +20,12 @@
     "@size-limit/preset-small-lib": "^2.1.6",
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.3",
+    "ava": "^2.4.0",
     "babel-plugin-dev-expression": "^0.2.2",
     "microbundle": "0.12.0-next.6",
     "react": "^16.11.0",
-    "tiny-invariant": "^1.0.6"
+    "tiny-invariant": "^1.0.6",
+    "ts-node": "^8.4.1"
   },
   "dependencies": {
     "type-fest": "^0.8.1"
@@ -39,5 +42,14 @@
         "react"
       ]
     }
-  ]
+  ],
+  "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  }
 }
