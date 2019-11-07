@@ -45,5 +45,5 @@ export type Options = {
    * @example
    * options.batch = ReactDOM.unstable_batchedUpdates
    */
-  batch: (callback: VoidFunction) => void;
+  batch?: (callback: VoidFunction) => void;
 };

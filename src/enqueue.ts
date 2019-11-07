@@ -3,11 +3,7 @@ import { Reaction, Options } from "./internaltypes";
 let queue: Set<Reaction> = new Set();
 let isUpdating = false;
 
-const options: Options = {
-  batch: function(callback) {
-    callback();
-  }
-};
+const options: Options = {};
 
 const enqueue = function(x: Reaction) {
   queue.add(x);
@@ -16,11 +12,17 @@ const enqueue = function(x: Reaction) {
   Promise.resolve().then(() => {
     const currentQueue = new Set(queue);
     queue = new Set();
-    options.batch(() => {
+    if (options.batch) {
+      options.batch(() => {
+        currentQueue.forEach(x => {
+          x._callback();
+        });
+      });
+    } else {
       currentQueue.forEach(x => {
         x._callback();
       });
-    });
+    }
     isUpdating = false;
   });
 };
