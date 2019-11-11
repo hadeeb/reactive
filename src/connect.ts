@@ -21,7 +21,8 @@ import { Store, Dispatch } from "./types";
 import {
   VoidFunction,
   ReactionObject,
-  ObservableObject
+  GetStoreType,
+  GetEventTypes
 } from "./internaltypes";
 
 const reducer = () => ({});
@@ -54,18 +55,18 @@ const observe = function<Props, T = unknown>(
   return memo(forwardRef(observedComponent));
 };
 
-const useStore = function<
-  StoreType extends ObservableObject,
-  EVENTS extends PropertyKey = PropertyKey
->(): [ReadonlyDeep<StoreType>, Dispatch<EVENTS>] {
-  const store: Store<StoreType, EVENTS> = useContext(context);
+const useStore = function<StoreType extends Store<any>>(): [
+  ReadonlyDeep<GetStoreType<StoreType>>,
+  Dispatch<GetEventTypes<StoreType>>
+] {
+  const store = useContext(context);
 
   invariant(
     store,
     "No Store Provider found\n" + "Did you forget to add StoreProvider?"
   );
 
-  return [store.getState() as ReadonlyDeep<StoreType>, store.dispatch];
+  return [store.getState(), store.dispatch];
 };
 
 export { observe, useStore };

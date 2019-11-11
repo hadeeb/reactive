@@ -47,3 +47,18 @@ export type Options = {
    */
   batch?: (callback: VoidFunction) => void;
 };
+
+// Helpers
+export type GetEventTypes<T extends Store<any, any>> = T extends Store<
+  any,
+  infer P
+>
+  ? P
+  : unknown;
+
+export type GetStoreType<T extends Store<any, any>> = T extends Store<
+  infer P,
+  any
+>
+  ? P
+  : unknown;

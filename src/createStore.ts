@@ -6,7 +6,7 @@ import { StoreHook, ObservableObject } from "./internaltypes";
 const createStore = function<
   T extends ObservableObject,
   EVENTS extends PropertyKey
->(events: EventListeners<T, EVENTS>, initialState: T): Store<T, EVENTS> {
+>(events: EventListeners<T, EVENTS>, initialState: T) {
   const state = observeObject(initialState);
 
   const dispatch: Dispatch<EVENTS> = function(action, payload) {

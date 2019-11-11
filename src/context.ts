@@ -1,10 +1,7 @@
 import { FunctionComponent, createContext, createElement } from "react";
 import { Store } from "./types";
 
-const context = createContext<Store<any, any>>((false as unknown) as Store<
-  any,
-  any
->);
+const context = createContext((false as unknown) as Store<any, any>);
 
 if (process.env.NODE_ENV !== "production") {
   context.displayName = `ReactiveStore`;
