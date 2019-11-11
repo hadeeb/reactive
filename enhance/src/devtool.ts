@@ -29,7 +29,6 @@ export function addReduxDevTool(
   }
 
   let ReduxTool = extension && extension.connect(options || {});
-  let ignoreUpdate = false;
 
   ReduxTool.init(store.getState());
 
@@ -37,10 +36,6 @@ export function addReduxDevTool(
     message: Record<"type" | "state" | "payload", any>
   ) {
     if (message.type === "DISPATCH" && message.state) {
-      ignoreUpdate =
-        message.payload.type === "JUMP_TO_ACTION" ||
-        message.payload.type === "JUMP_TO_STATE";
-
       const newState = JSON.parse(message.state);
       store.dispatch(UPDATE_FROM_DEVTOOL, newState);
     }
@@ -49,12 +44,6 @@ export function addReduxDevTool(
   const oldHook = store.$;
 
   store.$ = function(store, action, payload) {
-    if (!ignoreUpdate) {
-      ReduxTool.send({ type: String(action), payload }, store.getState());
-    } else {
-      ignoreUpdate = false;
-    }
-
     if (action === UPDATE_FROM_DEVTOOL) {
       const state = store.getState();
 
@@ -66,6 +55,7 @@ export function addReduxDevTool(
       }
     } else {
       oldHook(store, action);
+      ReduxTool.send({ type: String(action), payload }, store.getState());
     }
   };
 }
