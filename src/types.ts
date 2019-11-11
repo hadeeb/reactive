@@ -1,5 +1,6 @@
 import { ReadonlyDeep } from "type-fest";
-import { StoreHook, ObservableObject } from "./internaltypes";
+
+import { ObservableObject, StoreHook } from "./internaltypes";
 
 export { ObservableObject };
 

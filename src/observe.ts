@@ -1,9 +1,9 @@
 import invariant from "tiny-invariant";
 
-import { isSymbol } from "./util";
 import { enqueue } from "./enqueue";
 import { ObservableObject } from "./internaltypes";
 import { trackers } from "./trackers";
+import { isSymbol } from "./util";
 
 const $IterateTracker = Symbol();
 const TYPE_ADD = 1;

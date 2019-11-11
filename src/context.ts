@@ -1,4 +1,5 @@
-import { FunctionComponent, createContext, createElement } from "react";
+import { createContext, createElement, FunctionComponent } from "react";
+
 import { Store } from "./types";
 
 const context = createContext((false as unknown) as Store<any, any>);

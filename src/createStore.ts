@@ -1,7 +1,7 @@
+import { ObservableObject, StoreHook } from "./internaltypes";
 import { observeObject } from "./observe";
 import { trackers } from "./trackers";
-import { EventListeners, Store, Dispatch } from "./types";
-import { StoreHook, ObservableObject } from "./internaltypes";
+import { Dispatch, EventListeners, Store } from "./types";
 
 const createStore = function<
   T extends ObservableObject,

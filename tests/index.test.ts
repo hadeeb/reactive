@@ -16,7 +16,6 @@ type StoreState = {
 type StoreEvents = "INCREMENT" | "DECREMENT" | "UPDATE_STRING";
 
 test.beforeEach(t => {
-  t.context.store;
   t.context.store = createStore(
     {
       INCREMENT({ state }) {

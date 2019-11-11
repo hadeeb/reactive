@@ -1,4 +1,5 @@
-import { ReadonlyDeep, Primitive } from "type-fest";
+import { Primitive, ReadonlyDeep } from "type-fest";
+
 import { Store } from "./types";
 
 interface StoreObject extends Record<PropertyKey, StoreValue> {}

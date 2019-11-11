@@ -1,29 +1,24 @@
 import {
-  RefForwardingComponent,
-  memo,
   forwardRef,
-  useReducer,
-  useRef,
-  useEffect,
+  memo,
+  RefForwardingComponent,
   useContext,
-  MemoExoticComponent,
-  ForwardRefExoticComponent,
-  PropsWithoutRef,
-  RefAttributes,
-  Ref
+  useEffect,
+  useReducer,
+  useRef
 } from "react";
 import invariant from "tiny-invariant";
 import { ReadonlyDeep } from "type-fest";
 
 import { context } from "./context";
-import { createReaction } from "./reaction";
-import { Store, Dispatch } from "./types";
 import {
-  VoidFunction,
-  ReactionObject,
+  GetEventTypes,
   GetStoreType,
-  GetEventTypes
+  ReactionObject,
+  VoidFunction
 } from "./internaltypes";
+import { createReaction } from "./reaction";
+import { Dispatch, Store } from "./types";
 
 const reducer = () => ({});
 const useForceUpdate = function() {
@@ -32,10 +27,11 @@ const useForceUpdate = function() {
 
 const observe = function<Props, T = unknown>(
   component: RefForwardingComponent<T, Props>
-): MemoExoticComponent<
-  ForwardRefExoticComponent<PropsWithoutRef<Props> & RefAttributes<T>>
-> {
-  const observedComponent = function(props: Props, ref: Ref<T>) {
+) {
+  const observedComponent: RefForwardingComponent<
+    T,
+    Props
+  > = function ObservedComponent(props, ref) {
     const forceUpdate = useForceUpdate();
     const reaction = useRef<ReactionObject<any>>();
     if (!reaction.current) {
@@ -63,7 +59,7 @@ const useStore = function<StoreType extends Store<any>>(): [
 
   invariant(
     store,
-    "No Store Provider found\n" + "Did you forget to add StoreProvider?"
+    "No Store Provider found\nDid you forget to add StoreProvider?"
   );
 
   return [store.getState(), store.dispatch];
