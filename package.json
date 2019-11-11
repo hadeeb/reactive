@@ -9,7 +9,8 @@
   "scripts": {
     "build": "microbundle build --raw -f es,cjs",
     "size": "size-limit",
-    "test": "ava"
+    "test": "ava",
+    "lint": "eslint src tests --fix --ext .ts"
   },
   "sideEffects": false,
   "peerDependencies": {
@@ -19,10 +20,23 @@
   "devDependencies": {
     "@size-limit/preset-small-lib": "^2.1.6",
     "@types/react": "^16.9.11",
-    "@types/react-dom": "^16.9.3",
+    "@typescript-eslint/eslint-plugin": "2.x",
+    "@typescript-eslint/parser": "2.x",
     "ava": "^2.4.0",
+    "babel-eslint": "10.x",
     "babel-plugin-dev-expression": "^0.2.2",
+    "eslint": "6.x",
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-config-react-app": "^5.0.2",
+    "eslint-plugin-flowtype": "3.x",
+    "eslint-plugin-import": "2.x",
+    "eslint-plugin-jsx-a11y": "6.x",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-react": "7.x",
+    "eslint-plugin-react-hooks": "1.x",
+    "eslint-plugin-simple-import-sort": "^4.0.0",
     "microbundle": "0.12.0-next.6",
+    "prettier": "^1.19.1",
     "react": "^16.11.0",
     "tiny-invariant": "^1.0.6",
     "ts-node": "^8.4.1"
