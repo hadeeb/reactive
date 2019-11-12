@@ -54,7 +54,7 @@ export function addReduxDevTool(
         state[i] = payload[i];
       }
     } else {
-      oldHook(store, action);
+      oldHook(store, action, payload);
       ReduxTool.send({ type: String(action), payload }, store.getState());
     }
   };
