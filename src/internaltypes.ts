@@ -30,6 +30,7 @@ export type Trackers = {
   _depList: WeakMap<ObservableObject, PropertyKeyToReactionMap>;
   _reactions: WeakMap<Reaction, ObjectSet>;
   _toProxy: WeakMap<ObservableObject, ObservableObject>;
+  _toObject: WeakMap<ObservableObject, ObservableObject>;
 };
 
 export type StoreHook<EVENTS extends PropertyKey> = (

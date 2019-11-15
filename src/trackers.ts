@@ -5,7 +5,8 @@ const trackers: Trackers = {
   _currentWatcher: null,
   _depList: new WeakMap(),
   _reactions: new WeakMap(),
-  _toProxy: new WeakMap()
+  _toProxy: new WeakMap(),
+  _toObject: new WeakMap()
 };
 
 export { trackers };

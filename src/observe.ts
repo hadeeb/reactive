@@ -16,8 +16,13 @@ const InvalidMutationMessage =
   "dispatch another action after async operations";
 
 const observeObject = function<T extends ObservableObject>(obj: T): T {
-  // Already tracked
+  if (trackers._toObject.has(obj)) {
+    // This is a proxy
+    return obj;
+  }
+
   if (trackers._toProxy.has(obj)) {
+    // Already tracked
     return trackers._toProxy.get(obj) as T;
   }
 
@@ -44,7 +49,12 @@ const observeObject = function<T extends ObservableObject>(obj: T): T {
         triggerTrackers(target, TYPE_ADD, prop);
       }
 
-      return Reflect.set(target, prop, value, reciever);
+      const unwrappedValue = trackers._toObject.has(value)
+        ? // This is aproxy, get the actual object
+          trackers._toObject.get(value)
+        : value;
+
+      return Reflect.set(target, prop, unwrappedValue, reciever);
     },
     //Delete property
     deleteProperty(target, prop) {
@@ -63,6 +73,7 @@ const observeObject = function<T extends ObservableObject>(obj: T): T {
   });
 
   trackers._toProxy.set(obj, proxy);
+  trackers._toObject.set(proxy, obj);
   return proxy;
 };
 
