@@ -1,6 +1,11 @@
 import {
   forwardRef,
+  ForwardRefExoticComponent,
+  FunctionComponent,
   memo,
+  MemoExoticComponent,
+  PropsWithoutRef,
+  RefAttributes,
   RefForwardingComponent,
   useContext,
   useEffect,
@@ -25,9 +30,24 @@ const useForceUpdate = function() {
   return useReducer(reducer, true)[1] as VoidFunction;
 };
 
-const observe = function<Props, T = unknown>(
-  component: RefForwardingComponent<T, Props>
+function observe<Props>(
+  component: FunctionComponent<Props>
+): MemoExoticComponent<FunctionComponent<Props>>;
+function observe<Props, T = unknown>(
+  component: RefForwardingComponent<T, Props>,
+  options: {
+    forwardRef: boolean;
+  }
+): MemoExoticComponent<
+  ForwardRefExoticComponent<PropsWithoutRef<Props> & RefAttributes<T>>
+>;
+function observe<Props, T = unknown>(
+  component: RefForwardingComponent<T, Props>,
+  options?: {
+    forwardRef?: boolean;
+  }
 ) {
+  options = options || {};
   const observedComponent: RefForwardingComponent<
     T,
     Props
@@ -48,8 +68,10 @@ const observe = function<Props, T = unknown>(
       component.name ||
       "Component"})`;
   }
-  return memo(forwardRef(observedComponent));
-};
+  return memo(
+    options.forwardRef ? forwardRef(observedComponent) : observedComponent
+  );
+}
 
 const useStore = function<StoreType extends Store<any>>(): [
   ReadonlyDeep<GetStoreType<StoreType>>,
