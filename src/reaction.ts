@@ -7,9 +7,11 @@ const createReaction = function<T>(callback: VoidFunction): ReactionObject<T> {
   const cleanup = function() {
     const usedValues = trackers._reactions.get(thisReaction);
     if (usedValues) {
-      usedValues.forEach(val =>
-        trackers._depList.get(val)!.forEach(x => x.delete(thisReaction))
-      );
+      usedValues.forEach(val => {
+        trackers._depList.get(val)!.forEach(x => {
+          x.delete(thisReaction);
+        });
+      });
     }
   };
 
