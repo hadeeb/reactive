@@ -1,6 +1,7 @@
 import { Primitive, ReadonlyDeep } from "type-fest";
 
 import { Store } from "./types";
+import { OneofThree } from "./util";
 
 interface StoreObject extends Record<PropertyKey, StoreValue> {}
 
@@ -12,7 +13,8 @@ export type VoidFunction = () => void;
 
 export type ReactionObject<T> = {
   _track: (fn: () => T) => T;
-  _dispose: () => void;
+  _status: OneofThree;
+  _cleanup: () => void;
 };
 
 export type ObservableObject = StoreObject | StoreArray;

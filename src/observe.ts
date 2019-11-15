@@ -3,12 +3,15 @@ import invariant from "tiny-invariant";
 import { enqueue } from "./enqueue";
 import { ObservableObject } from "./internaltypes";
 import { trackers } from "./trackers";
-import { isSymbol } from "./util";
+import {
+  isSymbol,
+  ONE as TYPE_EDIT,
+  OneofThree,
+  TWO as TYPE_REMOVE,
+  ZERO as TYPE_ADD
+} from "./util";
 
 const $IterateTracker = Symbol();
-const TYPE_ADD = 1;
-const TYPE_EDIT = 2;
-const TYPE_REMOVE = 3;
 
 const InvalidMutationMessage =
   "Store shouldn't be modified outside event listeners\n" +
@@ -50,7 +53,7 @@ const observeObject = function<T extends ObservableObject>(obj: T): T {
       }
 
       const unwrappedValue = trackers._toObject.has(value)
-        ? // This is aproxy, get the actual object
+        ? // This is a proxy, get the actual object
           trackers._toObject.get(value)
         : value;
 
@@ -97,7 +100,7 @@ const addTrackers = function(target: ObservableObject, key: PropertyKey) {
 
 const triggerTrackers = function(
   target: ObservableObject,
-  type: number,
+  type: OneofThree,
   key: PropertyKey
 ) {
   const deps = trackers._depList.get(target);

@@ -24,11 +24,15 @@ import {
 } from "./internaltypes";
 import { createReaction } from "./reaction";
 import { Dispatch, Store } from "./types";
+import { ONE as CREATED_AND_SHOULD_UPDATE, TWO as MOUNTED } from "./util";
 
 const reducer = () => ({});
 const useForceUpdate = function() {
   return useReducer(reducer, true)[1] as VoidFunction;
 };
+
+const EMPTY_ARRAY: any[] = [];
+const EMPTY_OBJECT = {};
 
 function observe<Props>(
   component: FunctionComponent<Props>
@@ -47,7 +51,7 @@ function observe<Props, T = unknown>(
     forwardRef?: boolean;
   }
 ) {
-  options = options || {};
+  options = options || EMPTY_OBJECT;
   const observedComponent: RefForwardingComponent<
     T,
     Props
@@ -55,10 +59,29 @@ function observe<Props, T = unknown>(
     const forceUpdate = useForceUpdate();
     const reaction = useRef<ReactionObject<any>>();
     if (!reaction.current) {
-      reaction.current = createReaction<any>(forceUpdate);
+      reaction.current = createReaction<any>(() => {
+        if (reaction.current!._status === MOUNTED) {
+          forceUpdate();
+        } else {
+          // This render didn't reach useEffect
+          // Cleanup dependencies to avoid memory leak if this render is discarded
+          reaction.current!._cleanup();
+          // Mark it needs update if it reaches useEffect
+          reaction.current!._status = CREATED_AND_SHOULD_UPDATE;
+        }
+      });
     }
 
-    useEffect(() => reaction.current!._dispose, []);
+    useEffect(() => {
+      if (reaction.current!._status === CREATED_AND_SHOULD_UPDATE) {
+        // An update was scheduled before useEffect
+        forceUpdate();
+      }
+      // Mark the current reaction as valid
+      reaction.current!._status = MOUNTED;
+      return reaction.current!._cleanup;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, EMPTY_ARRAY);
 
     return reaction.current._track(() => component(props, ref));
   };
