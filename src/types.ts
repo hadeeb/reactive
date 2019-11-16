@@ -19,12 +19,12 @@ export type Dispatch<EVENTS extends PropertyKey = PropertyKey> = (
 ) => void;
 
 export type EventListener<
-  T,
+  T extends ObservableObject,
   EVENTS extends PropertyKey = PropertyKey,
   Args = any
-> = (store: { state: T; dispatch: Dispatch<EVENTS> }, payload?: Args) => void;
+> = (store: { state: T; dispatch: Dispatch<EVENTS> }, payload: Args) => void;
 
-export type EventListeners<T, KEYS extends PropertyKey> = Record<
-  KEYS,
-  EventListener<T, KEYS>
->;
+export type EventListeners<
+  T extends ObservableObject,
+  KEYS extends PropertyKey
+> = Record<KEYS, EventListener<T, KEYS>>;

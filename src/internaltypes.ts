@@ -38,7 +38,7 @@ export type Trackers = {
 export type StoreHook<EVENTS extends PropertyKey> = (
   store: ReadonlyDeep<Store<any, EVENTS>>,
   action: EVENTS,
-  payload?: any
+  payload: any
 ) => void;
 
 export type Options = {
