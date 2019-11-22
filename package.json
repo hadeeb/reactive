@@ -13,6 +13,11 @@
     "lint": "eslint src tests --fix --ext .ts"
   },
   "sideEffects": false,
+  "author": {
+    "email": "hadeebfarhan1@gmail.com",
+    "name": "Hadeeb Farhan",
+    "url": "https://hadeeb.dev"
+  },
   "peerDependencies": {
     "react": ">=16.8",
     "tiny-invariant": "*"
