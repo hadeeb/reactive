@@ -2,18 +2,19 @@
 
 Reactive global state for react apps
 
-## References
-
-- [@vue/reactivity](https://github.com/vuejs/vue-next/tree/master/packages/reactivity)
-- [hyperactiv](https://github.com/elbywan/hyperactiv)
-- [Mobx](https://github.com/mobxjs/mobx)
-- [mobx-react-lite](https://github.com/mobxjs/mobx-react-lite)
-
 ---
 
+```sh
+npm i @hadeeb/reactive
+OR
+yarn add @hadeeb/reactive
+```
+
 - ~1 KB (min+gzip)
-- Maps,Sets,etc are not reactive
-- Wrapper works only on functional components
+- Automatic dependency tracking with ES6 Proxies.
+- Dispatch events to update the state.
+- Mutate the state inside event listeners.
+- Components are updated only when used values have changed.
 
 ---
 
@@ -21,7 +22,13 @@ Reactive global state for react apps
 
 ```tsx
 import { unstable_batchedUpdates } from "react-dom"; //Or react-native
-import { StoreProvider, createStore, observe, useStore, options } from "...";
+import {
+  StoreProvider,
+  createStore,
+  observe,
+  useStore,
+  options
+} from "@hadeeb/reactive";
 
 const store = createStore(
   {
@@ -84,21 +91,28 @@ function App() {
 options.batch = unstable_batchedUpdates;
 ```
 
-## Enhancers
-
-Add features to store
-
 ### Redux DevTool Integration
 
 ```tsx
-import {addReduxDevTool} from ".../enhance"
+import {addReduxDevTool} from "@hadeeb/reactive/enhance"
 const store = createStore(...,...)
 
 addReduxDevTool(store,options)
 ```
 
-## TODO
+### Caveats
+
+- ES6 collections are not reactive
+
+### Prior art
+
+- [@vue/reactivity](https://github.com/vuejs/vue-next/tree/master/packages/reactivity)
+- [hyperactiv](https://github.com/elbywan/hyperactiv)
+- [Mobx](https://github.com/mobxjs/mobx)
+- [mobx-react-lite](https://github.com/mobxjs/mobx-react-lite)
+
+### TODO
 
 - Documentation
-  - type helpers
+  - Class components
 - Example Project
