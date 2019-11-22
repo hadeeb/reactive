@@ -1,10 +1,12 @@
 import {
+  Component,
   forwardRef,
   ForwardRefExoticComponent,
   FunctionComponent,
   memo,
   MemoExoticComponent,
   PropsWithoutRef,
+  ReactNode,
   RefAttributes,
   RefForwardingComponent,
   useContext,
@@ -22,9 +24,13 @@ import {
   ReactionObject,
   VoidFunction
 } from "./internaltypes";
+import { $IterateTracker } from "./observe";
 import { createReaction } from "./reaction";
 import { Dispatch, Store } from "./types";
 import { ONE as CREATED_AND_SHOULD_UPDATE, TWO as MOUNTED } from "./util";
+
+const NoProviderError =
+  "No Store Provider found\nDid you forget to add StoreProvider?";
 
 const reducer = () => ({});
 const useForceUpdate = function() {
@@ -102,12 +108,43 @@ const useStore = function<StoreType extends Store<any>>(): [
 ] {
   const store = useContext(context);
 
-  invariant(
-    store,
-    "No Store Provider found\nDid you forget to add StoreProvider?"
-  );
+  invariant(store, NoProviderError);
 
   return [store.getState(), store.dispatch];
 };
 
-export { observe, useStore };
+interface Observed extends Component {
+  [$IterateTracker]: ReactionObject<ReactNode>;
+}
+
+function decorate<T extends typeof Component>(component: T): T {
+  const target = component.prototype as Observed;
+  const baseRender = target.render;
+
+  target.render = function() {
+    var that = this;
+    invariant(that.context, NoProviderError);
+    that[$IterateTracker] = createReaction<ReactNode>(
+      target.forceUpdate.bind(that)
+    );
+    const boundRender = baseRender.bind(that);
+    function trackedRender() {
+      return that[$IterateTracker]._track(boundRender);
+    }
+    target.render = trackedRender;
+    return trackedRender();
+  };
+  const baseUnmount = target.componentWillUnmount;
+  target.componentWillUnmount = function() {
+    baseUnmount && baseUnmount();
+    this[$IterateTracker]._cleanup();
+  };
+  invariant(
+    !component.contextType,
+    "Don't use contextType with 'decorate'\n'decorate' uses contextType to inject store to 'this.context'"
+  );
+  component.contextType = context;
+  return component;
+}
+
+export { observe, decorate, useStore };
