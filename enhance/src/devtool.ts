@@ -1,4 +1,4 @@
-import { Store } from "reactive";
+import { Store } from "@hadeeb/reactive";
 
 const UPDATE_FROM_DEVTOOL = Symbol();
 

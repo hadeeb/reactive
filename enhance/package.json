@@ -11,7 +11,7 @@
   },
   "sideEffects": false,
   "peerDependencies": {
-    "reactive": "1.0.0"
+    "@hadeeb/reactive": "*"
   },
   "devDependencies": {
     "microbundle": "0.12.0-next.6"

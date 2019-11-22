@@ -1,6 +1,6 @@
 {
-  "name": "reactive",
-  "version": "1.0.0",
+  "name": "@hadeeb/reactive",
+  "version": "0.0.1",
   "license": "MIT",
   "src": "src/index.ts",
   "main": "dist/index.js",
@@ -51,7 +51,7 @@
     {
       "name": "core",
       "path": "dist/index.js",
-      "limit": "1040 B",
+      "limit": "1100 B",
       "ignore": [
         "react"
       ]
