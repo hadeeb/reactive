@@ -1,2 +1,8 @@
+.vscode
+.rts2*
+tests
+.babelrc
+.eslintrc.js
+.yalc
 tsconfig.json
 yarn.lock
