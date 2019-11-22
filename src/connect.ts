@@ -1,6 +1,5 @@
 import {
   Component,
-  ComponentClass,
   forwardRef,
   ForwardRefExoticComponent,
   FunctionComponent,
@@ -41,10 +40,10 @@ const useForceUpdate = function() {
 const EMPTY_ARRAY: any[] = [];
 const EMPTY_OBJECT = {};
 
-function observeLite<Props>(
+function observe<Props>(
   component: FunctionComponent<Props>
 ): MemoExoticComponent<FunctionComponent<Props>>;
-function observeLite<Props, T = unknown>(
+function observe<Props, T = unknown>(
   component: RefForwardingComponent<T, Props>,
   options: {
     forwardRef: boolean;
@@ -52,7 +51,7 @@ function observeLite<Props, T = unknown>(
 ): MemoExoticComponent<
   ForwardRefExoticComponent<PropsWithoutRef<Props> & RefAttributes<T>>
 >;
-function observeLite<Props, T = unknown>(
+function observe<Props, T = unknown>(
   component: RefForwardingComponent<T, Props>,
   options?: {
     forwardRef?: boolean;
@@ -140,41 +139,12 @@ function decorate<T extends typeof Component>(component: T): T {
     baseUnmount && baseUnmount();
     this[$IterateTracker]._cleanup();
   };
-  invariant(!component.contextType, "Don't use contextType with observe");
+  invariant(
+    !component.contextType,
+    "Don't use contextType with 'decorate'\n'decorate' uses contextType to inject store to 'this.context'"
+  );
   component.contextType = context;
   return component;
 }
 
-//@ts-ignore
-function observe<Props>(
-  component: FunctionComponent<Props>
-): MemoExoticComponent<FunctionComponent<Props>>;
-function observe<Props, T = unknown>(
-  component: RefForwardingComponent<T, Props>,
-  options: {
-    forwardRef: boolean;
-  }
-): MemoExoticComponent<
-  ForwardRefExoticComponent<PropsWithoutRef<Props> & RefAttributes<T>>
->;
-function observe<T extends typeof Component>(component: T): T;
-function observe(
-  component:
-    | FunctionComponent<unknown>
-    | RefForwardingComponent<unknown, unknown>
-    | ComponentClass,
-  options?: {
-    forwardRef?: boolean;
-  }
-) {
-  if (component.prototype.isReactComponent) {
-    return decorate(component as ComponentClass);
-  } else {
-    return observeLite(
-      component as ForwardRefExoticComponent<unknown>,
-      options as { forwardRef: boolean }
-    );
-  }
-}
-
-export { observe, useStore };
+export { observe, decorate, useStore };
