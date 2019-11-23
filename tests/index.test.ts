@@ -1,19 +1,34 @@
 import anyTest, { TestInterface } from "ava";
 
 import { createStore, Store } from "../src";
-import { createReaction } from "../src/reaction";
+import { createReaction, untrack } from "../src/reaction";
 
 const test = anyTest as TestInterface<{
   store: Store<StoreState, StoreEvents>;
+  cleanup?: VoidFunction;
 }>;
 
 type StoreState = {
   count: number;
   deep: {
     value: string;
+    anotherValue: string;
   };
 };
-type StoreEvents = "INCREMENT" | "DECREMENT" | "UPDATE_STRING";
+type StoreEvents =
+  | "INCREMENT"
+  | "DECREMENT"
+  | "UPDATE_STRING"
+  | "UPDATE_ANOTHERSTRING";
+
+function autorun(fun: () => any) {
+  function cb() {
+    reaction._track(fun);
+  }
+  const reaction = createReaction(cb);
+  cb();
+  return reaction._cleanup;
+}
 
 test.beforeEach(t => {
   t.context.store = createStore(
@@ -26,15 +41,23 @@ test.beforeEach(t => {
       },
       UPDATE_STRING({ state }) {
         state.deep.value += "!";
+      },
+      UPDATE_ANOTHERSTRING({ state }) {
+        state.deep.anotherValue += "#";
       }
     },
     {
       count: 0,
       deep: {
-        value: "qwerty"
+        value: "qwerty",
+        anotherValue: "asdfgh"
       }
     }
   );
+});
+
+test.afterEach(t => {
+  t.context.cleanup && t.context.cleanup();
 });
 
 test("Mutates state synchronously", t => {
@@ -48,30 +71,24 @@ test("Mutates state synchronously", t => {
 
   dispatch("DECREMENT");
   t.deepEqual(state.count, 0);
-
-  t.pass();
 });
 
 test("Callbacks are executed asynchronously", async t => {
   const state = t.context.store.getState();
   const dispatch = t.context.store.dispatch;
 
-  let fired = 0;
+  let fired = -1;
   const cb = () => {
     ++fired;
+    return state.count;
   };
 
-  const reaction = createReaction(cb);
-  reaction._track(() => {
-    return state.count;
-  });
+  t.context.cleanup = autorun(cb);
 
   dispatch("INCREMENT");
   t.deepEqual(fired, 0);
   await Promise.resolve();
   t.deepEqual(fired, 1);
-
-  t.pass();
 });
 
 test("Callbacks are batched", async t => {
@@ -106,14 +123,13 @@ test("Callbacks are executed only when dependencies are mutated", async t => {
   const state = t.context.store.getState();
   const dispatch = t.context.store.dispatch;
 
-  let fired = 0;
+  let fired = -1;
   const cb = () => {
     ++fired;
-  };
-  const reaction = createReaction(cb);
-  reaction._track(() => {
     return state.deep.value;
-  });
+  };
+
+  t.context.cleanup = autorun(cb);
 
   const initialValue = state.deep.value;
 
@@ -126,8 +142,65 @@ test("Callbacks are executed only when dependencies are mutated", async t => {
   t.deepEqual(state.deep.value, initialValue + "!");
   await Promise.resolve();
   t.deepEqual(fired, 1);
+});
 
-  t.pass();
+test("Tracked values are updated on each invokation", async t => {
+  const state = t.context.store.getState();
+  const dispatch = t.context.store.dispatch;
+
+  let fired = -1;
+  const cb = () => {
+    ++fired;
+    return state.count % 2 === 0 ? state.deep.value : state.deep.anotherValue;
+  };
+
+  t.context.cleanup = autorun(cb);
+  t.deepEqual(fired, 0);
+
+  // state.deep.anotherValue is not tracked
+  dispatch("UPDATE_STRING");
+  await Promise.resolve();
+  t.deepEqual(fired, 1);
+  dispatch("UPDATE_ANOTHERSTRING");
+  await Promise.resolve();
+  t.deepEqual(fired, 1);
+
+  dispatch("INCREMENT");
+  await Promise.resolve();
+  t.deepEqual(fired, 2);
+
+  // state.deep.value is not tracked
+  dispatch("UPDATE_STRING");
+  await Promise.resolve();
+  t.deepEqual(fired, 2);
+  dispatch("UPDATE_ANOTHERSTRING");
+  await Promise.resolve();
+  t.deepEqual(fired, 3);
+});
+
+test("Values used inside 'untrack' are not tracked", async t => {
+  const state = t.context.store.getState();
+  const dispatch = t.context.store.dispatch;
+
+  let fired = -1;
+  const cb = () => {
+    ++fired;
+    const untrackedCount = untrack(() => state.count);
+    return state.deep.value + untrackedCount;
+  };
+
+  t.context.cleanup = autorun(cb);
+  t.deepEqual(fired, 0);
+
+  dispatch("INCREMENT");
+  await Promise.resolve();
+
+  t.deepEqual(fired, 0);
+
+  dispatch("UPDATE_STRING");
+  await Promise.resolve();
+
+  t.deepEqual(fired, 1);
 });
 
 test("Dispatch hook", t => {
