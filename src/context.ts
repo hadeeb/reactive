@@ -1,17 +1,17 @@
-import { createContext, createElement, ReactNode } from "react";
+import React from "react";
 
 import { Store } from "./types";
 
-const context = createContext((false as unknown) as Store<any, any>);
+const context = React.createContext((false as unknown) as Store<any, any>);
 
 if (process.env.NODE_ENV !== "production") {
   context.displayName = `ReactiveStore`;
 }
 
-type ProviderProps = { store: Store<any, any>; children: ReactNode };
+type ProviderProps = { store: Store<any, any>; children: React.ReactNode };
 
 function StoreProvider(props: ProviderProps) {
-  return createElement(context.Provider, {
+  return React.createElement(context.Provider, {
     value: props.store,
     children: props.children
   });

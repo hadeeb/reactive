@@ -1,19 +1,4 @@
-import {
-  Component,
-  forwardRef,
-  ForwardRefExoticComponent,
-  FunctionComponent,
-  memo,
-  MemoExoticComponent,
-  PropsWithoutRef,
-  ReactNode,
-  RefAttributes,
-  RefForwardingComponent,
-  useContext,
-  useEffect,
-  useReducer,
-  useRef
-} from "react";
+import React from "react";
 import invariant from "tiny-invariant";
 import { ReadonlyDeep } from "type-fest";
 
@@ -36,36 +21,38 @@ function reducer() {
   return {};
 }
 function useForceUpdate() {
-  return useReducer(reducer, true)[1] as VoidFunction;
+  return React.useReducer(reducer, true)[1] as VoidFunction;
 }
 
 const EMPTY_ARRAY: any[] = [];
 const EMPTY_OBJECT = {};
 
 function observe<Props>(
-  component: FunctionComponent<Props>
-): MemoExoticComponent<FunctionComponent<Props>>;
+  component: React.FunctionComponent<Props>
+): React.MemoExoticComponent<React.FunctionComponent<Props>>;
 function observe<Props, T = unknown>(
-  component: RefForwardingComponent<T, Props>,
+  component: React.RefForwardingComponent<T, Props>,
   options: {
     forwardRef: boolean;
   }
-): MemoExoticComponent<
-  ForwardRefExoticComponent<PropsWithoutRef<Props> & RefAttributes<T>>
+): React.MemoExoticComponent<
+  React.ForwardRefExoticComponent<
+    React.PropsWithoutRef<Props> & React.RefAttributes<T>
+  >
 >;
 function observe<Props, T = unknown>(
-  component: RefForwardingComponent<T, Props>,
+  component: React.RefForwardingComponent<T, Props>,
   options?: {
     forwardRef?: boolean;
   }
 ) {
   options = options || EMPTY_OBJECT;
-  const observedComponent: RefForwardingComponent<
+  const observedComponent: React.RefForwardingComponent<
     T,
     Props
   > = function ObservedComponent(props, ref) {
     const forceUpdate = useForceUpdate();
-    const reaction = useRef<ReactionObject<any>>();
+    const reaction = React.useRef<ReactionObject<any>>();
     if (!reaction.current) {
       reaction.current = createReaction<any>(() => {
         if (reaction.current!._status === MOUNTED) {
@@ -80,7 +67,7 @@ function observe<Props, T = unknown>(
       });
     }
 
-    useEffect(() => {
+    React.useEffect(() => {
       if (reaction.current!._status === CREATED_AND_SHOULD_UPDATE) {
         // An update was scheduled before useEffect
         forceUpdate();
@@ -99,8 +86,8 @@ function observe<Props, T = unknown>(
       component.name ||
       "Component"})`;
   }
-  return memo(
-    options.forwardRef ? forwardRef(observedComponent) : observedComponent
+  return React.memo(
+    options.forwardRef ? React.forwardRef(observedComponent) : observedComponent
   );
 }
 
@@ -108,25 +95,25 @@ function useStore<StoreType extends Store<any, any>>(): [
   ReadonlyDeep<GetStoreType<StoreType>>,
   Dispatch<GetEventTypes<StoreType>>
 ] {
-  const store = useContext(context);
+  const store = React.useContext(context);
 
   invariant(store, NoProviderError);
 
   return [store.getState(), store.dispatch];
 }
 
-interface Observed extends Component {
-  [$IterateTracker]: ReactionObject<ReactNode>;
+interface Observed extends React.Component {
+  [$IterateTracker]: ReactionObject<React.ReactNode>;
 }
 
-function decorate<T extends typeof Component>(component: T): T {
+function decorate<T extends typeof React.Component>(component: T): T {
   const target = component.prototype as Observed;
   const baseRender = target.render;
 
   target.render = function() {
     var that = this;
     invariant(that.context, NoProviderError);
-    that[$IterateTracker] = createReaction<ReactNode>(
+    that[$IterateTracker] = createReaction<React.ReactNode>(
       target.forceUpdate.bind(that)
     );
     const boundRender = baseRender.bind(that);
