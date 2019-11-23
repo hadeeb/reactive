@@ -1,5 +1,6 @@
 {
   "name": "@hadeeb/reactive",
+  "description": "Reactive global state for react apps",
   "version": "0.0.1",
   "license": "MIT",
   "src": "src/index.ts",
@@ -18,6 +19,19 @@
     "name": "Hadeeb Farhan",
     "url": "https://hadeeb.dev"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hadeeb/reactive"
+  },
+  "bugs": {
+    "url": "https://github.com/hadeeb/reactive/issues"
+  },
+  "keywords": [
+    "reactive",
+    "react",
+    "state",
+    "store"
+  ],
   "peerDependencies": {
     "react": ">=16.8",
     "tiny-invariant": "*"
