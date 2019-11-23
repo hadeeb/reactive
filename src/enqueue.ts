@@ -5,7 +5,7 @@ let isUpdating = false;
 
 const options: Options = {};
 
-const enqueue = function(x: Reaction) {
+function enqueue(x: Reaction) {
   queue.add(x);
   if (isUpdating) return;
   isUpdating = true;
@@ -25,6 +25,6 @@ const enqueue = function(x: Reaction) {
     }
     isUpdating = false;
   });
-};
+}
 
 export { enqueue, options };

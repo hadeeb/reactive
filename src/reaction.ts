@@ -2,7 +2,7 @@ import { Reaction, ReactionObject, VoidFunction } from "./internaltypes";
 import { trackers } from "./trackers";
 import { ZERO as CREATED } from "./util";
 
-const createReaction = function<T>(callback: VoidFunction): ReactionObject<T> {
+function createReaction<T>(callback: VoidFunction): ReactionObject<T> {
   const thisReaction: Reaction = { _callback: callback };
 
   const cleanup = function() {
@@ -30,14 +30,16 @@ const createReaction = function<T>(callback: VoidFunction): ReactionObject<T> {
     _status: CREATED,
     _cleanup: cleanup
   };
-};
+}
 
-const untrack = function<T>(callback: () => T): T {
+function untrack<T>(callback: () => T): T {
   const prevTracker = trackers._currentWatcher;
-  trackers._currentWatcher = null;
-  const result = callback();
-  trackers._currentWatcher = prevTracker;
-  return result;
-};
+  trackers._currentWatcher = false;
+  try {
+    return callback();
+  } finally {
+    trackers._currentWatcher = prevTracker;
+  }
+}
 
 export { createReaction, untrack };

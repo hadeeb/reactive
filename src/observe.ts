@@ -18,7 +18,7 @@ const InvalidMutationMessage =
   "If you are trying to do some asynchronous actions inside event listeners,\n" +
   "dispatch another action after async operations";
 
-const observeObject = function<T extends ObservableObject>(obj: T): T {
+function observeObject<T extends ObservableObject>(obj: T): T {
   if (trackers._toObject.has(obj)) {
     // This is a proxy
     return obj;
@@ -78,9 +78,9 @@ const observeObject = function<T extends ObservableObject>(obj: T): T {
   trackers._toProxy.set(obj, proxy);
   trackers._toObject.set(proxy, obj);
   return proxy;
-};
+}
 
-const addTrackers = function(target: ObservableObject, key: PropertyKey) {
+function addTrackers(target: ObservableObject, key: PropertyKey) {
   if (trackers._currentWatcher) {
     let currentTracker = trackers._depList.get(target);
     if (!currentTracker) {
@@ -96,9 +96,9 @@ const addTrackers = function(target: ObservableObject, key: PropertyKey) {
       depList.add(target);
     }
   }
-};
+}
 
-const triggerTrackers = function(
+function triggerTrackers(
   target: ObservableObject,
   type: OneofThree,
   key: PropertyKey
@@ -124,7 +124,7 @@ const triggerTrackers = function(
       deps.delete(key);
     }
   }
-};
+}
 
 const builtInSymbols = new Set(
   Object.getOwnPropertyNames(Symbol)

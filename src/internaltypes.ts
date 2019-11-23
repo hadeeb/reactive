@@ -28,7 +28,7 @@ export type Reaction = {
 
 export type Trackers = {
   _isEditing: boolean;
-  _currentWatcher: Reaction | null;
+  _currentWatcher: Reaction | false;
   _depList: WeakMap<ObservableObject, PropertyKeyToReactionMap>;
   _reactions: WeakMap<Reaction, ObjectSet>;
   _toProxy: WeakMap<ObservableObject, ObservableObject>;

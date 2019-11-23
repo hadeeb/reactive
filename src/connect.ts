@@ -32,10 +32,12 @@ import { ONE as CREATED_AND_SHOULD_UPDATE, TWO as MOUNTED } from "./util";
 const NoProviderError =
   "No Store Provider found\nDid you forget to add StoreProvider?";
 
-const reducer = () => ({});
-const useForceUpdate = function() {
+function reducer() {
+  return {};
+}
+function useForceUpdate() {
   return useReducer(reducer, true)[1] as VoidFunction;
-};
+}
 
 const EMPTY_ARRAY: any[] = [];
 const EMPTY_OBJECT = {};
@@ -102,7 +104,7 @@ function observe<Props, T = unknown>(
   );
 }
 
-const useStore = function<StoreType extends Store<any, any>>(): [
+function useStore<StoreType extends Store<any, any>>(): [
   ReadonlyDeep<GetStoreType<StoreType>>,
   Dispatch<GetEventTypes<StoreType>>
 ] {
@@ -111,7 +113,7 @@ const useStore = function<StoreType extends Store<any, any>>(): [
   invariant(store, NoProviderError);
 
   return [store.getState(), store.dispatch];
-};
+}
 
 interface Observed extends Component {
   [$IterateTracker]: ReactionObject<ReactNode>;

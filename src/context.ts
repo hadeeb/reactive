@@ -1,4 +1,4 @@
-import { createContext, createElement, FunctionComponent } from "react";
+import { createContext, createElement, ReactNode } from "react";
 
 import { Store } from "./types";
 
@@ -8,9 +8,13 @@ if (process.env.NODE_ENV !== "production") {
   context.displayName = `ReactiveStore`;
 }
 
-const StoreProvider: FunctionComponent<{ store: Store<any, any> }> = ({
-  store,
-  children
-}) => createElement(context.Provider, { value: store, children });
+type ProviderProps = { store: Store<any, any>; children: ReactNode };
+
+function StoreProvider(props: ProviderProps) {
+  return createElement(context.Provider, {
+    value: props.store,
+    children: props.children
+  });
+}
 
 export { StoreProvider, context };

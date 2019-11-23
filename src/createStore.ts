@@ -3,7 +3,7 @@ import { observeObject } from "./observe";
 import { trackers } from "./trackers";
 import { Dispatch, EventListeners, Store } from "./types";
 
-const createStore = function<
+function createStore<
   State extends ObservableObject,
   EVENTS extends PropertyKey
 >(events: EventListeners<State, EVENTS>, initialState: State) {
@@ -11,7 +11,7 @@ const createStore = function<
 
   const dispatch: Dispatch<EVENTS> = function(action, payload) {
     const prevTracker = trackers._currentWatcher;
-    trackers._currentWatcher = null;
+    trackers._currentWatcher = false;
     trackers._isEditing = true;
     store.$(store, action, payload);
     trackers._isEditing = false;
@@ -30,6 +30,6 @@ const createStore = function<
     $: defaultHook
   } as Store<State, EVENTS>;
   return store;
-};
+}
 
 export { createStore };

@@ -1,6 +1,6 @@
-const isSymbol = function(val: PropertyKey): val is symbol {
+function isSymbol(val: PropertyKey): val is symbol {
   return typeof val === "symbol";
-};
+}
 
 const ZERO = 0;
 const ONE = 1;
