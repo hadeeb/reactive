@@ -102,7 +102,7 @@ function observe<Props, T = unknown>(
   );
 }
 
-const useStore = function<StoreType extends Store<any>>(): [
+const useStore = function<StoreType extends Store<any, any>>(): [
   ReadonlyDeep<GetStoreType<StoreType>>,
   Dispatch<GetEventTypes<StoreType>>
 ] {
