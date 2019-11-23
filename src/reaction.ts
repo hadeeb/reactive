@@ -32,12 +32,12 @@ const createReaction = function<T>(callback: VoidFunction): ReactionObject<T> {
   };
 };
 
-function untrack<T>(callback: () => T): T {
+const untrack = function<T>(callback: () => T): T {
   const prevTracker = trackers._currentWatcher;
   trackers._currentWatcher = null;
   const result = callback();
   trackers._currentWatcher = prevTracker;
   return result;
-}
+};
 
 export { createReaction, untrack };

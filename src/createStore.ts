@@ -4,9 +4,9 @@ import { trackers } from "./trackers";
 import { Dispatch, EventListeners, Store } from "./types";
 
 const createStore = function<
-  T extends ObservableObject,
+  State extends ObservableObject,
   EVENTS extends PropertyKey
->(events: EventListeners<T, EVENTS>, initialState: T) {
+>(events: EventListeners<State, EVENTS>, initialState: State) {
   const state = observeObject(initialState);
 
   const dispatch: Dispatch<EVENTS> = function(action, payload) {
@@ -28,7 +28,7 @@ const createStore = function<
     getState: () => state,
     dispatch: dispatch,
     $: defaultHook
-  } as Store<T, EVENTS>;
+  } as Store<State, EVENTS>;
   return store;
 };
 

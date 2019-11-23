@@ -5,10 +5,10 @@ import { ObservableObject, StoreHook } from "./internaltypes";
 export { ObservableObject };
 
 export type Store<
-  T extends ObservableObject,
+  State extends ObservableObject,
   EVENTS extends PropertyKey = PropertyKey
 > = {
-  getState: () => ReadonlyDeep<T>;
+  getState: () => ReadonlyDeep<State>;
   dispatch: Dispatch<EVENTS>;
   $: StoreHook<EVENTS>;
 };
@@ -19,12 +19,15 @@ export type Dispatch<EVENTS extends PropertyKey = PropertyKey> = (
 ) => void;
 
 export type EventListener<
-  T extends ObservableObject,
+  State extends ObservableObject,
   EVENTS extends PropertyKey = PropertyKey,
   Args = any
-> = (store: { state: T; dispatch: Dispatch<EVENTS> }, payload: Args) => void;
+> = (
+  store: { state: State; dispatch: Dispatch<EVENTS> },
+  payload: Args
+) => void;
 
 export type EventListeners<
-  T extends ObservableObject,
+  State extends ObservableObject,
   KEYS extends PropertyKey
-> = Record<KEYS, EventListener<T, KEYS>>;
+> = Record<KEYS, EventListener<State, KEYS>>;
