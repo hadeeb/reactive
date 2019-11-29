@@ -6,3 +6,5 @@ tests
 .yalc
 tsconfig.json
 yarn.lock
+.nyc*
+coverage
