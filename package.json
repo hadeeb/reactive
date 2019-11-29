@@ -1,7 +1,7 @@
 {
   "name": "@hadeeb/reactive",
   "description": "Reactive global state for react apps",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "license": "MIT",
   "src": "src/index.ts",
   "main": "dist/index.js",
