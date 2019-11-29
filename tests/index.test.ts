@@ -1,6 +1,6 @@
 import anyTest, { TestInterface } from "ava";
 
-import { createStore, Store } from "../src";
+import { createStore, options, Store } from "../src";
 import { createReaction, untrack } from "../src/reaction";
 
 const test = anyTest as TestInterface<{
@@ -19,7 +19,8 @@ type StoreEvents =
   | "INCREMENT"
   | "DECREMENT"
   | "UPDATE_STRING"
-  | "UPDATE_ANOTHERSTRING";
+  | "UPDATE_ANOTHERSTRING"
+  | "KEEP_COUNT";
 
 function autorun(fun: () => any) {
   function cb() {
@@ -44,6 +45,9 @@ test.beforeEach(t => {
       },
       UPDATE_ANOTHERSTRING({ state }) {
         state.deep.anotherValue += "#";
+      },
+      KEEP_COUNT({ state }) {
+        state.count = +state.count;
       }
     },
     {
@@ -144,6 +148,29 @@ test("Callbacks are executed only when dependencies are mutated", async t => {
   t.deepEqual(fired, 1);
 });
 
+test("Callbacks are executed only when the value of dependencies have changed", async t => {
+  const state = t.context.store.getState();
+  const dispatch = t.context.store.dispatch;
+
+  let fired = -1;
+  const cb = () => {
+    ++fired;
+    return state.count;
+  };
+
+  t.context.cleanup = autorun(cb);
+
+  dispatch("INCREMENT");
+  t.deepEqual(state.count, 1);
+  await Promise.resolve();
+  t.deepEqual(fired, 1);
+
+  dispatch("KEEP_COUNT");
+  t.deepEqual(state.count, 1);
+  await Promise.resolve();
+  t.deepEqual(fired, 1);
+});
+
 test("Tracked values are updated on each invokation", async t => {
   const state = t.context.store.getState();
   const dispatch = t.context.store.dispatch;
@@ -201,6 +228,37 @@ test("Values used inside 'untrack' are not tracked", async t => {
   await Promise.resolve();
 
   t.deepEqual(fired, 1);
+});
+
+test("Dispatching unknown action is a noop", async t => {
+  const dispatch = t.context.store.dispatch;
+  t.notThrows(() => {
+    //@ts-ignore
+    dispatch("UNKNOWN_ACTION");
+  });
+});
+
+test("options.batch is called on updates with a function", async t => {
+  const dispatch = t.context.store.dispatch;
+
+  let fired = 0;
+  options.batch = function(cb) {
+    fired++;
+    cb();
+  };
+
+  dispatch("INCREMENT");
+  await Promise.resolve();
+
+  t.deepEqual(fired, 1);
+
+  dispatch("INCREMENT");
+  dispatch("DECREMENT");
+  await Promise.resolve();
+
+  t.deepEqual(fired, 2);
+
+  delete options.batch;
 });
 
 test("Dispatch hook", t => {

@@ -1,16 +1,16 @@
-import React, { Component, FunctionComponent } from "react";
 import { render } from "@testing-library/react";
-import { JSDOM } from "jsdom";
 import { renderHook } from "@testing-library/react-hooks";
 import anyTest, { TestInterface } from "ava";
+import { JSDOM } from "jsdom";
+import React, { Component, FunctionComponent } from "react";
 
 import {
   createStore,
+  decorate,
   observe,
   Store,
   StoreProvider,
-  useStore,
-  decorate
+  useStore
 } from "../src";
 
 const test = anyTest as TestInterface<{
@@ -84,7 +84,7 @@ test("observe re-renders on state change", async t => {
     <StoreProvider store={t.context.store}>{children}</StoreProvider>
   );
 
-  const { container } = render(
+  const { container, unmount } = render(
     <Wrapper>
       <Child />
     </Wrapper>
@@ -96,6 +96,7 @@ test("observe re-renders on state change", async t => {
   await Promise.resolve();
 
   t.deepEqual(container.querySelector("div")!.innerHTML, "1");
+  unmount();
 });
 
 test("observe re-renders only on changes to observed state", async t => {
@@ -110,7 +111,7 @@ test("observe re-renders only on changes to observed state", async t => {
     <StoreProvider store={t.context.store}>{children}</StoreProvider>
   );
 
-  const { container } = render(
+  const { container, unmount } = render(
     <Wrapper>
       <Child />
     </Wrapper>
@@ -129,6 +130,7 @@ test("observe re-renders only on changes to observed state", async t => {
   await Promise.resolve();
 
   t.deepEqual(renders, 2);
+  unmount();
 });
 
 test("decorate re-renders on state change", async t => {
@@ -146,7 +148,7 @@ test("decorate re-renders on state change", async t => {
     <StoreProvider store={t.context.store}>{children}</StoreProvider>
   );
 
-  const { container } = render(
+  const { container, unmount } = render(
     <Wrapper>
       <Child />
     </Wrapper>
@@ -158,6 +160,7 @@ test("decorate re-renders on state change", async t => {
   await Promise.resolve();
 
   t.deepEqual(container.querySelector("div")!.innerHTML, "1");
+  unmount();
 });
 
 test("decorate re-renders only on changes to observed state", async t => {
@@ -177,7 +180,7 @@ test("decorate re-renders only on changes to observed state", async t => {
     <StoreProvider store={t.context.store}>{children}</StoreProvider>
   );
 
-  const { container } = render(
+  const { container, unmount } = render(
     <Wrapper>
       <Child />
     </Wrapper>
@@ -197,4 +200,5 @@ test("decorate re-renders only on changes to observed state", async t => {
   await Promise.resolve();
 
   t.deepEqual(renders, 2);
+  unmount();
 });
