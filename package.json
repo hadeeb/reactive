@@ -11,7 +11,11 @@
     "build": "microbundle build --raw -f es,cjs",
     "size": "size-limit",
     "test": "nyc ava --verbose",
-    "lint": "eslint src tests --fix --ext .ts,.tsx"
+    "lint": "eslint src tests --fix --ext .ts,.tsx",
+    "docz:dev": "docz dev",
+    "docz:build": "docz build",
+    "predeploy": "yarn docz:build",
+    "deploy": "gh-pages -d .docz/dist"
   },
   "author": {
     "email": "hadeebfarhan1@gmail.com",
@@ -46,6 +50,7 @@
     "ava": "^2.4.0",
     "babel-eslint": "10.x",
     "babel-plugin-dev-expression": "^0.2.2",
+    "docz": "^2.2.0",
     "eslint": "6.x",
     "eslint-config-prettier": "^6.7.0",
     "eslint-config-react-app": "^5.0.2",
@@ -56,6 +61,7 @@
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "2.x",
     "eslint-plugin-simple-import-sort": "^5.0.0",
+    "gh-pages": "^2.1.1",
     "jsdom": "^15.2.1",
     "microbundle": "0.12.0-next.6",
     "nyc": "^14.1.1",

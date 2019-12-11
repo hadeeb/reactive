@@ -1,0 +1,62 @@
+---
+name: More
+route: /more
+---
+
+## Devtool
+
+Debug `reactive` store with [Redux devtools extension](http://extension.remotedev.io/)
+
+```js
+import { addReduxDevTool } from "@hadeeb/reactive/enhance";
+const store = createStore();
+
+addReduxDevTool(store, options);
+```
+
+## CodeSplitting
+
+`events` is a plain object. New event handlers can be added at any time
+
+```js
+import StaticModule from "...";
+
+const events = {
+  Initialize_Module({ state }, payload) {
+    Object.assign(state, payload);
+  }
+};
+
+Object.assign(events, StaticModule.events);
+
+const initialState = StaticModule.initialState;
+
+const store = createStore(events, initialState);
+
+function addModule(lazyModule) {
+  Object.assign(events, lazyModule.events);
+  store.dispatch("Initialize_Module", lazyModule.initialState);
+}
+```
+
+## Customizing store
+
+`store.$` can be used to override how the events are handled.
+
+Refer : [Redux devtool integration](https://github.com/hadeeb/reactive/blob/96c9f93b8b4d0cea936bab361b1de8b96b0c07ce/enhance/src/devtool.ts#L44)
+
+`store.$` : (store, event, payload):void
+
+eg: Event logger
+
+```js
+const store = createStore();
+
+const originalHook = store.$;
+store.$ = function(store, event, payload) {
+  console.log({ event, payload });
+  console.log("Before", store.getState());
+  originalHook(store, event, payload);
+  console.log("After", store.getState());
+};
+```

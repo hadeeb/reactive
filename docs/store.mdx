@@ -1,0 +1,46 @@
+---
+name: Store
+route: /store
+---
+
+# Store
+
+> Stores the state and event handlers.
+
+Create a store using `createStore`.
+
+`createStore` accepts 2 parameters - event handlers and initial state.
+
+```js
+import { createStore } from "@hadeeb/reactive";
+
+const events = {
+  INCREMENT({ state }) {
+    state.counter++;
+  },
+  DECREMENT({ state }) {
+    state.counter--;
+  },
+  UPDATE_COUNTER({ state }, payload) {
+    state.counter = state.counter + payload;
+  },
+  async ASYNC_UPDATE({ dispatch }) {
+    const count = await fetch(
+      "https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain&rnd=new"
+    ).then(data => data.text());
+    dispatch("UPDATE_COUNTER", count);
+  }
+};
+
+const initialState = { counter: 0 };
+
+const store = createStore(events, initialState);
+```
+
+- `store.getState()`
+
+  returns the current state
+
+- `store.dispatch(event,payload)`
+
+  dispatches an action and an optional payload as second argument

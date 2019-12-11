@@ -1,0 +1,135 @@
+---
+name: Connect
+route: /connect
+---
+
+> Connect your React apps to reactive store
+
+## StoreProvider
+
+Make the store accessible to the rest of the app.
+
+```js
+import React from "react";
+import ReactDOM from "react-dom";
+
+import { StoreProvider } from "@hadeeb/reactive";
+import store from "./store";
+
+import App from "./App";
+
+const rootElement = document.getElementById("root");
+ReactDOM.render(
+  <StoreProvider store={store}>
+    <App />
+  </StoreProvider>,
+  rootElement
+);
+```
+
+## useStore
+
+Read store from components
+
+```js
+import React from "react";
+import { useStore } from "@hadeeb/reactive";
+
+function CounterDisplay() {
+  const [state, dispatch] = useStore();
+
+  return <span>{state.count}</span>;
+}
+```
+
+## observe
+
+Wrap your function components to track usage of state and rerender when necessary
+
+```js
+import React from "react";
+import { useStore, observe } from "@hadeeb/reactive";
+
+function CounterDisplay() {
+  const [state, dispatch] = useStore();
+
+  return <span>{state.count}</span>;
+}
+
+export default observe(CounterDisplay);
+```
+
+### forwardRef & memo
+
+Components wrapped with `observe` have `React.memo` applied by default.
+If the component to observe is also supposed to forward refs, don't apply `forwardRef`, pass `forwardRef : true` to `observe`.
+
+`observe` take an optional second argument with the shape
+
+```js
+{
+  forwardRef?:boolean; // default = false
+  memo?:boolean; // default = true
+}
+```
+
+```js
+import React from "react";
+import { useStore, observe } from "@hadeeb/reactive";
+
+function Counter(props, ref) {
+  const [, dispatch] = useStore();
+
+  function onClick() {
+    dispatch("INCREMENT");
+  }
+
+  return (
+    <div>
+      <span>{state.count}</span>
+      <button ref={ref} onClick={onClick}>
+        +
+      </button>
+    </div>
+  );
+}
+
+export default observe(Counter, {
+  forwardRef: true
+});
+```
+
+## decorate
+
+Access store from class components
+
+```js
+import React from "react";
+import { decorate } from "@hadeeb/reactive";
+
+class CounterDisplay extends React.Component {
+  render() {
+    const store = this.context;
+    const state = store.getState();
+
+    return return <span>{state.count}</span>;
+  }
+}
+
+export default decorate(CounterDisplay);
+```
+
+- `decorate` can also be used as a decorator
+  ```js
+  @decorate
+  class MyComponent extends React.Component {
+    ...
+  }
+  ```
+- `decorate` stores tracking data in `this.$`.
+
+  Avoid using `$` as instance variable/method in decorated components
+
+- `decorate` uses `contextType` to inject store to `this.context`.
+
+  You can't use `contextType` with `decorate`.
