@@ -9,7 +9,6 @@ import {
   ReactionObject,
   VoidFunction
 } from "./internaltypes";
-import { $IterateTracker } from "./observe";
 import { createReaction } from "./reaction";
 import { Dispatch, Store } from "./types";
 import { ONE as CREATED_AND_SHOULD_UPDATE, TWO as MOUNTED } from "./util";
@@ -103,30 +102,29 @@ function useStore<StoreType extends Store<any, any>>(): [
 }
 
 interface Observed extends React.Component {
-  [$IterateTracker]: ReactionObject<React.ReactNode>;
+  $: ReactionObject<React.ReactNode>;
 }
 
 function decorate<T extends typeof React.Component>(component: T): T {
   const target = component.prototype as Observed;
   const baseRender = target.render;
+  const baseUnmount = target.componentWillUnmount;
 
   target.render = function() {
     var that = this;
     invariant(that.context, NoProviderError);
-    that[$IterateTracker] = createReaction<React.ReactNode>(
-      target.forceUpdate.bind(that)
-    );
+    that.$ = createReaction<React.ReactNode>(target.forceUpdate.bind(that));
     const boundRender = baseRender.bind(that);
     function trackedRender() {
-      return that[$IterateTracker]._track(boundRender);
+      return that.$._track(boundRender);
     }
     target.render = trackedRender;
     return trackedRender();
   };
-  const baseUnmount = target.componentWillUnmount;
+
   target.componentWillUnmount = function() {
     baseUnmount && baseUnmount();
-    this[$IterateTracker]._cleanup();
+    this.$._cleanup();
   };
   invariant(
     !component.contextType,

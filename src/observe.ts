@@ -132,4 +132,4 @@ const builtInSymbols = new Set(
     .filter(isSymbol)
 );
 
-export { observeObject, $IterateTracker };
+export { observeObject };
