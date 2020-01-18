@@ -1,7 +1,5 @@
-.rts2*
 node_modules
 dist
 .yalc
-.nyc*
 coverage
 .docz

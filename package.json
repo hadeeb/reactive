@@ -10,7 +10,7 @@
   "scripts": {
     "build": "microbundle build --raw -f es,cjs",
     "size": "size-limit",
-    "test": "nyc ava --verbose",
+    "test": "jest --coverage",
     "lint": "eslint src tests --fix --ext .ts,.tsx",
     "docz:dev": "docz dev",
     "docz:build": "docz build",
@@ -40,37 +40,35 @@
     "tiny-invariant": "*"
   },
   "devDependencies": {
-    "@size-limit/preset-small-lib": "^2.2.1",
-    "@testing-library/react": "^9.3.2",
+    "@size-limit/preset-small-lib": "^3.0.0",
+    "@testing-library/react": "^9.4.0",
     "@testing-library/react-hooks": "^3.2.1",
-    "@types/jsdom": "^12.2.4",
-    "@types/react": "^16.9.13",
-    "@typescript-eslint/eslint-plugin": "2.x",
-    "@typescript-eslint/parser": "2.x",
-    "ava": "^2.4.0",
-    "babel-eslint": "10.x",
+    "@types/jest": "^24.9.0",
+    "@types/react": "^16.9.17",
+    "@typescript-eslint/eslint-plugin": "^2.16.0",
+    "@typescript-eslint/parser": "^2.16.0",
+    "babel-eslint": "^10.0.3",
     "babel-plugin-dev-expression": "^0.2.2",
     "docz": "^2.2.0",
-    "eslint": "6.x",
-    "eslint-config-prettier": "^6.7.0",
-    "eslint-config-react-app": "^5.0.2",
-    "eslint-plugin-flowtype": "4.x",
-    "eslint-plugin-import": "2.x",
-    "eslint-plugin-jsx-a11y": "6.x",
-    "eslint-plugin-prettier": "^3.1.1",
-    "eslint-plugin-react": "7.x",
-    "eslint-plugin-react-hooks": "2.x",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-config-react-app": "^5.1.0",
+    "eslint-plugin-flowtype": "^4.6.0",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.18.0",
+    "eslint-plugin-react-hooks": "^2.3.0",
     "eslint-plugin-simple-import-sort": "^5.0.0",
-    "gh-pages": "^2.1.1",
-    "jsdom": "^15.2.1",
+    "gh-pages": "^2.2.0",
+    "jest": "^24.9.0",
     "microbundle": "0.12.0-next.6",
-    "nyc": "^14.1.1",
     "prettier": "^1.19.1",
-    "react": "^16.11.0",
+    "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-test-renderer": "^16.12.0",
     "tiny-invariant": "^1.0.6",
-    "ts-node": "^8.5.4"
+    "ts-jest": "^24.3.0"
   },
   "dependencies": {
     "type-fest": "^0.8.1"
@@ -87,28 +85,5 @@
         "react"
       ]
     }
-  ],
-  "ava": {
-    "compileEnhancements": false,
-    "extensions": [
-      "ts",
-      "tsx"
-    ],
-    "require": [
-      "ts-node/register"
-    ]
-  },
-  "nyc": {
-    "extension": [
-      ".ts",
-      ".tsx"
-    ],
-    "include": [
-      "src/**/*.ts"
-    ],
-    "reporter": [
-      "html",
-      "text"
-    ]
-  }
+  ]
 }

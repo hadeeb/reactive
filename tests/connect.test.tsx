@@ -1,21 +1,16 @@
-import { render } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
-import anyTest, { TestInterface } from "ava";
-import { JSDOM } from "jsdom";
 import React, { Component, FunctionComponent } from "react";
 
 import {
   createStore,
   decorate,
   observe,
+  options,
   Store,
   StoreProvider,
   useStore
 } from "../src";
-
-const test = anyTest as TestInterface<{
-  store: ContextStore;
-}>;
 
 type ContextStore = Store<StoreState, StoreEvents>;
 
@@ -27,8 +22,14 @@ type StoreState = {
 };
 type StoreEvents = "INCREMENT" | "DECREMENT" | "UPDATE_STRING";
 
-test.beforeEach(t => {
-  t.context.store = createStore(
+let store: Store<StoreState, StoreEvents>;
+
+beforeAll(() => {
+  options.batch = act;
+});
+
+beforeEach(() => {
+  store = createStore(
     {
       INCREMENT({ state }) {
         state.count++;
@@ -47,41 +48,29 @@ test.beforeEach(t => {
       }
     }
   );
-
-  //@ts-ignore
-  global.document = new JSDOM().window.document;
-  //@ts-ignore
-  global.window = new JSDOM().window;
 });
 
-test.afterEach(() => {
-  //@ts-ignore
-  delete global.document;
-  //@ts-ignore
-  delete global.window;
-});
-
-test("useStore provides state and dispatch", t => {
+test("useStore provides state and dispatch", () => {
   const wrapper: FunctionComponent = ({ children }) => (
-    <StoreProvider store={t.context.store}>{children}</StoreProvider>
+    <StoreProvider store={store}>{children}</StoreProvider>
   );
 
   const { result } = renderHook(() => useStore<ContextStore>(), {
     wrapper
   });
 
-  t.deepEqual(result.current[0], t.context.store.getState());
-  t.deepEqual(result.current[1], t.context.store.dispatch);
+  expect(result.current[0]).toEqual(store.getState());
+  expect(result.current[1]).toEqual(store.dispatch);
 });
 
-test("observe re-renders on state change", async t => {
+test("observe re-renders on state change", async done => {
   const Child = observe(() => {
     const [state] = useStore<ContextStore>();
     return <div>{state.count}</div>;
   });
 
   const Wrapper: FunctionComponent = ({ children }) => (
-    <StoreProvider store={t.context.store}>{children}</StoreProvider>
+    <StoreProvider store={store}>{children}</StoreProvider>
   );
 
   const { container, unmount } = render(
@@ -90,16 +79,17 @@ test("observe re-renders on state change", async t => {
     </Wrapper>
   );
 
-  t.deepEqual(container.querySelector("div")!.innerHTML, "0");
+  expect(container.querySelector("div")!.innerHTML).toEqual("0");
 
-  t.context.store.dispatch("INCREMENT");
+  store.dispatch("INCREMENT");
   await Promise.resolve();
 
-  t.deepEqual(container.querySelector("div")!.innerHTML, "1");
+  expect(container.querySelector("div")!.innerHTML).toEqual("1");
   unmount();
+  done();
 });
 
-test("observe re-renders only on changes to observed state", async t => {
+test("observe re-renders only on changes to observed state", async done => {
   let renders = 0;
   const Child = observe(() => {
     renders++;
@@ -108,7 +98,7 @@ test("observe re-renders only on changes to observed state", async t => {
   });
 
   const Wrapper: FunctionComponent = ({ children }) => (
-    <StoreProvider store={t.context.store}>{children}</StoreProvider>
+    <StoreProvider store={store}>{children}</StoreProvider>
   );
 
   const { container, unmount } = render(
@@ -116,24 +106,26 @@ test("observe re-renders only on changes to observed state", async t => {
       <Child />
     </Wrapper>
   );
+  expect(container.querySelector("div")!.innerHTML).toEqual("0");
 
-  t.deepEqual(container.querySelector("div")!.innerHTML, "0");
-  t.deepEqual(renders, 1);
+  expect(renders).toEqual(1);
 
-  t.context.store.dispatch("INCREMENT");
+  store.dispatch("INCREMENT");
   await Promise.resolve();
 
-  t.deepEqual(container.querySelector("div")!.innerHTML, "1");
-  t.deepEqual(renders, 2);
+  expect(container.querySelector("div")!.innerHTML).toEqual("1");
 
-  t.context.store.dispatch("UPDATE_STRING");
+  expect(renders).toEqual(2);
+
+  store.dispatch("UPDATE_STRING");
   await Promise.resolve();
 
-  t.deepEqual(renders, 2);
+  expect(renders).toEqual(2);
   unmount();
+  done();
 });
 
-test("decorate re-renders on state change", async t => {
+test("decorate re-renders on state change", async done => {
   const Child = decorate(
     class extends Component {
       context!: ContextStore;
@@ -145,7 +137,7 @@ test("decorate re-renders on state change", async t => {
   );
 
   const Wrapper: FunctionComponent = ({ children }) => (
-    <StoreProvider store={t.context.store}>{children}</StoreProvider>
+    <StoreProvider store={store}>{children}</StoreProvider>
   );
 
   const { container, unmount } = render(
@@ -154,16 +146,17 @@ test("decorate re-renders on state change", async t => {
     </Wrapper>
   );
 
-  t.deepEqual(container.querySelector("div")!.innerHTML, "0");
+  expect(container.querySelector("div")!.innerHTML).toEqual("0");
 
-  t.context.store.dispatch("INCREMENT");
+  store.dispatch("INCREMENT");
   await Promise.resolve();
 
-  t.deepEqual(container.querySelector("div")!.innerHTML, "1");
+  expect(container.querySelector("div")!.innerHTML).toEqual("1");
   unmount();
+  done();
 });
 
-test("decorate re-renders only on changes to observed state", async t => {
+test("decorate re-renders only on changes to observed state", async done => {
   let renders = 0;
   const Child = decorate(
     class extends Component {
@@ -177,7 +170,7 @@ test("decorate re-renders only on changes to observed state", async t => {
   );
 
   const Wrapper: FunctionComponent = ({ children }) => (
-    <StoreProvider store={t.context.store}>{children}</StoreProvider>
+    <StoreProvider store={store}>{children}</StoreProvider>
   );
 
   const { container, unmount } = render(
@@ -186,19 +179,20 @@ test("decorate re-renders only on changes to observed state", async t => {
     </Wrapper>
   );
 
-  t.deepEqual(container.querySelector("div")!.innerHTML, "0");
-  t.deepEqual(renders, 1);
+  expect(container.querySelector("div")!.innerHTML).toEqual("0");
+  expect(renders).toEqual(1);
 
-  t.context.store.dispatch("INCREMENT");
+  store.dispatch("INCREMENT");
 
   await Promise.resolve();
 
-  t.deepEqual(container.querySelector("div")!.innerHTML, "1");
-  t.deepEqual(renders, 2);
+  expect(container.querySelector("div")!.innerHTML).toEqual("1");
+  expect(renders).toEqual(2);
 
-  t.context.store.dispatch("UPDATE_STRING");
+  store.dispatch("UPDATE_STRING");
   await Promise.resolve();
 
-  t.deepEqual(renders, 2);
+  expect(renders).toEqual(2);
   unmount();
+  done();
 });
