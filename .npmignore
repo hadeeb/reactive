@@ -8,3 +8,6 @@ tsconfig.json
 yarn.lock
 .nyc*
 coverage
+.docz
+docs
+doczrc.js
