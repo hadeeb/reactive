@@ -11,3 +11,4 @@ coverage
 .docz
 docs
 doczrc.js
+.travis.yml
