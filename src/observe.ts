@@ -19,14 +19,14 @@ const InvalidMutationMessage =
   "dispatch another action after async operations";
 
 function observeObject<T extends ObservableObject>(obj: T): T {
-  if (trackers._toObject.has(obj)) {
-    // This is a proxy
-    return obj;
-  }
-
   if (trackers._toProxy.has(obj)) {
     // Already tracked
     return trackers._toProxy.get(obj) as T;
+  }
+
+  if (trackers._toObject.has(obj)) {
+    // This is a proxy
+    return obj;
   }
 
   const proxy = new Proxy(obj, {
@@ -43,19 +43,19 @@ function observeObject<T extends ObservableObject>(obj: T): T {
     set(target, prop, value, reciever) {
       invariant(trackers._isEditing, InvalidMutationMessage);
 
+      const unwrappedValue = trackers._toObject.has(value)
+        ? // This is a tracked proxy, get the actual object
+          trackers._toObject.get(value)
+        : value;
+
       if (target.hasOwnProperty(prop)) {
         const currentValue = Reflect.get(target, prop);
-        if (currentValue !== value) {
+        if (currentValue !== unwrappedValue) {
           triggerTrackers(target, TYPE_EDIT, prop);
         }
       } else {
         triggerTrackers(target, TYPE_ADD, prop);
       }
-
-      const unwrappedValue = trackers._toObject.has(value)
-        ? // This is a proxy, get the actual object
-          trackers._toObject.get(value)
-        : value;
 
       return Reflect.set(target, prop, unwrappedValue, reciever);
     },

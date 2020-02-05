@@ -1,5 +1,7 @@
 # Reactive Store
 
+[![Build Status](https://travis-ci.org/hadeeb/reactive.svg?branch=master)](https://travis-ci.org/hadeeb/reactive)
+
 Reactive global state for react apps
 
 ---
