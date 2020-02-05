@@ -40,38 +40,39 @@
     "tiny-invariant": "*"
   },
   "devDependencies": {
-    "@size-limit/preset-small-lib": "^3.0.0",
+    "@size-limit/preset-small-lib": "^4.0.0",
     "@testing-library/react": "^9.4.0",
     "@testing-library/react-hooks": "^3.2.1",
-    "@types/jest": "^24.9.0",
-    "@types/react": "^16.9.17",
-    "@typescript-eslint/eslint-plugin": "^2.16.0",
-    "@typescript-eslint/parser": "^2.16.0",
+    "@types/jest": "^25.1.1",
+    "@types/react": "^16.9.19",
+    "@typescript-eslint/eslint-plugin": "^2.19.0",
+    "@typescript-eslint/parser": "^2.19.0",
     "babel-eslint": "^10.0.3",
     "babel-plugin-dev-expression": "^0.2.2",
     "docz": "^2.2.0",
     "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.9.0",
-    "eslint-config-react-app": "^5.1.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-config-react-app": "^5.2.0",
     "eslint-plugin-flowtype": "^4.6.0",
-    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-prettier": "^3.1.2",
-    "eslint-plugin-react": "^7.18.0",
+    "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^2.3.0",
-    "eslint-plugin-simple-import-sort": "^5.0.0",
+    "eslint-plugin-simple-import-sort": "^5.0.1",
     "gh-pages": "^2.2.0",
-    "jest": "^24.9.0",
+    "jest": "^25.1.0",
     "microbundle": "0.12.0-next.6",
     "prettier": "^1.19.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-test-renderer": "^16.12.0",
+    "size-limit": "^4.0.0",
     "tiny-invariant": "^1.0.6",
-    "ts-jest": "^24.3.0"
+    "ts-jest": "^25.2.0"
   },
   "dependencies": {
-    "type-fest": "^0.8.1"
+    "type-fest": "^0.10.0"
   },
   "mangle": {
     "regex": "^_"
